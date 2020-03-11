@@ -78,7 +78,7 @@ namespace server.Models
                     .HasConstraintName("assignment_task_outcome_assignment_task_id_foreign");
 
                 entity.HasOne(d => d.Outcome)
-                    .WithMany(p => p.AssignmentTaskOutcomes)
+                    .WithMany()
                     .HasForeignKey(d => d.OutcomeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("assignment_task_outcome_outcome_id_foreign");

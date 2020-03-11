@@ -15,7 +15,5 @@ namespace server.Models
 
         public int? CourseInfoId { get; set; }
         public virtual CourseInfo CourseInfo { get; set; }
-
-        public virtual ICollection<AssignmentTaskOutcome> AssignmentTaskOutcomes { get; set; }
     }
 }
