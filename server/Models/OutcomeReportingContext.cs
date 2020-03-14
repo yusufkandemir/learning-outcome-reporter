@@ -247,6 +247,11 @@ namespace server.Models
             {
                 entity.ToTable("outcomes");
 
+                entity
+                    .HasDiscriminator<string>("type")
+                    .HasValue<ProgramOutcome>("program")
+                    .HasValue<LearningOutcome>("learning");
+
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Code)
@@ -266,14 +271,18 @@ namespace server.Models
                     .HasColumnName("type")
                     .HasMaxLength(8)
                     .IsUnicode(false);
+            });
 
+            modelBuilder.Entity<ProgramOutcome>(entity => {
                 entity.Property(e => e.DepartmentId).HasColumnName("department_id");
 
                 entity.HasOne(d => d.Department)
                     .WithMany(p => p.Outcomes)
                     .HasForeignKey(d => d.DepartmentId)
                     .HasConstraintName("outcomes_department_id_foreign");
+            });
 
+            modelBuilder.Entity<LearningOutcome>(entity => {
                 entity.Property(e => e.CourseInfoId).HasColumnName("course_info_id");
 
                 entity.HasOne(d => d.CourseInfo)

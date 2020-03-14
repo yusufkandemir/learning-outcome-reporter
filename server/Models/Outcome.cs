@@ -9,11 +9,5 @@ namespace server.Models
         public string Code { get; set; }
         public string Description { get; set; }
         public string Type { get; set; }
-
-        public int? DepartmentId { get; set; }
-        public virtual Department Department { get; set; }
-
-        public int? CourseInfoId { get; set; }
-        public virtual CourseInfo CourseInfo { get; set; }
     }
 }

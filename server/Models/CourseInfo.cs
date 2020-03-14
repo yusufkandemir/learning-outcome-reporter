@@ -8,7 +8,7 @@ namespace server.Models
         public CourseInfo()
         {
             Courses = new HashSet<Course>();
-            Outcomes = new HashSet<Outcome>();
+            Outcomes = new HashSet<LearningOutcome>();
         }
 
         public int Id { get; set; }
@@ -19,6 +19,6 @@ namespace server.Models
 
         public virtual Department Department { get; set; }
         public virtual ICollection<Course> Courses { get; set; }
-        public virtual ICollection<Outcome> Outcomes { get; set; }
+        public virtual ICollection<LearningOutcome> Outcomes { get; set; }
     }
 }
