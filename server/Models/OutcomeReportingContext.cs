@@ -248,7 +248,7 @@ namespace server.Models
                 entity.ToTable("outcomes");
 
                 entity
-                    .HasDiscriminator<string>("type")
+                    .HasDiscriminator<string>("Type")
                     .HasValue<ProgramOutcome>("program")
                     .HasValue<LearningOutcome>("learning");
 
@@ -266,7 +266,7 @@ namespace server.Models
                     .HasMaxLength(255)
                     .IsUnicode(false);
 
-                entity.Property(e => e.Type)
+                entity.Property("Type")
                     .IsRequired()
                     .HasColumnName("type")
                     .HasMaxLength(8)
