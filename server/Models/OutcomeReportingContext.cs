@@ -134,7 +134,8 @@ namespace server.Models
                     .IsRequired()
                     .HasColumnName("type")
                     .HasMaxLength(10)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasConversion<string>();
 
                 entity.Property(e => e.Weight)
                     .HasColumnName("weight")
@@ -212,7 +213,8 @@ namespace server.Models
                     .IsRequired()
                     .HasColumnName("semester")
                     .HasMaxLength(10)
-                    .IsUnicode(false);
+                    .IsUnicode(false)
+                    .HasConversion<string>();
 
                 entity.Property(e => e.Year).HasColumnName("year");
 

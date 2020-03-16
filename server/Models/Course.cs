@@ -13,7 +13,7 @@ namespace server.Models
 
         public int Id { get; set; }
         public int CourseInfoId { get; set; }
-        public string Semester { get; set; }
+        public Semester Semester { get; set; }
         public int Year { get; set; }
 
         public virtual CourseInfo CourseInfo { get; set; }
