@@ -43,14 +43,14 @@ namespace server.Models
                 entity.HasOne(d => d.Assignment)
                     .WithMany(p => p.AssignmentResults)
                     .HasForeignKey(d => d.AssignmentId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("assignment_results_assignment_id_foreign");
+                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .HasConstraintName("FK_assignment_results_assignment_id");
 
                 entity.HasOne(d => d.CourseResult)
                     .WithMany(p => p.AssignmentResults)
                     .HasForeignKey(d => d.CourseResultId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("course_result_id_foreign");
+                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .HasConstraintName("FK_assignment_results_course_result_id");
             });
 
             modelBuilder.Entity<AssignmentTaskOutcome>(entity =>
@@ -66,12 +66,14 @@ namespace server.Models
                 entity.HasOne(d => d.AssignmentTask)
                     .WithMany(p => p.AssignmentTaskOutcomes)
                     .HasForeignKey(d => d.AssignmentTaskId)
-                    .HasConstraintName("assignment_task_outcome_assignment_task_id_foreign");
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_assignment_task_outcome_assignment_task_id");
 
                 entity.HasOne(d => d.Outcome)
                     .WithMany()
                     .HasForeignKey(d => d.OutcomeId)
-                    .HasConstraintName("assignment_task_outcome_outcome_id_foreign");
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_assignment_task_outcome_outcome_id");
             });
 
             modelBuilder.Entity<AssignmentTaskResult>(entity =>
@@ -91,14 +93,14 @@ namespace server.Models
                 entity.HasOne(d => d.AssignmentResult)
                     .WithMany(p => p.AssignmentTaskResults)
                     .HasForeignKey(d => d.AssignmentResultId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("assignment_task_result_assignment_result_id_foreign");
+                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .HasConstraintName("FK_assignment_task_results_assignment_result_id");
 
                 entity.HasOne(d => d.AssignmentTask)
                     .WithMany(p => p.AssignmentTaskResults)
                     .HasForeignKey(d => d.AssignmentTaskId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("assignment_task_result_assignment_task_id_foreign");
+                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .HasConstraintName("FK_assignment_task_results_assignment_task_id");
             });
 
             modelBuilder.Entity<AssignmentTask>(entity =>
@@ -118,8 +120,8 @@ namespace server.Models
                 entity.HasOne(d => d.Assignment)
                     .WithMany(p => p.AssignmentTasks)
                     .HasForeignKey(d => d.AssignmentId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("assignment_tasks_assignment_id_foreign");
+                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .HasConstraintName("FK_assignment_tasks_assignment_id");
             });
 
             modelBuilder.Entity<Assignment>(entity =>
@@ -144,8 +146,8 @@ namespace server.Models
                 entity.HasOne(d => d.Course)
                     .WithMany(p => p.Assignments)
                     .HasForeignKey(d => d.CourseId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("assignments_section_id_foreign");
+                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .HasConstraintName("FK_assignments_course_id");
             });
 
             modelBuilder.Entity<CourseInfo>(entity =>
@@ -173,7 +175,8 @@ namespace server.Models
                 entity.HasOne(d => d.Department)
                     .WithMany(p => p.CourseInfos)
                     .HasForeignKey(d => d.DepartmentId)
-                    .HasConstraintName("courses_department_id_foreign");
+                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .HasConstraintName("FK_course_infos_department_id");
             });
 
             modelBuilder.Entity<CourseResult>(entity =>
@@ -193,12 +196,14 @@ namespace server.Models
                 entity.HasOne(d => d.Course)
                     .WithMany(p => p.CourseResults)
                     .HasForeignKey(d => d.CourseId)
-                    .HasConstraintName("course_result_section_id_foreign");
+                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .HasConstraintName("FK_course_results_course_id");
 
                 entity.HasOne(d => d.Student)
                     .WithMany(p => p.CourseResults)
                     .HasForeignKey(d => d.StudentId)
-                    .HasConstraintName("course_result_student_id_foreign");
+                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .HasConstraintName("FK_course_results_student_id");
             });
 
             modelBuilder.Entity<Course>(entity =>
@@ -221,7 +226,8 @@ namespace server.Models
                 entity.HasOne(d => d.CourseInfo)
                     .WithMany(p => p.Courses)
                     .HasForeignKey(d => d.CourseInfoId)
-                    .HasConstraintName("sections_course_id_foreign");
+                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .HasConstraintName("FK_courses_course_info_id");
             });
 
             modelBuilder.Entity<Department>(entity =>
@@ -273,7 +279,8 @@ namespace server.Models
                 entity.HasOne(d => d.Department)
                     .WithMany(p => p.Outcomes)
                     .HasForeignKey(d => d.DepartmentId)
-                    .HasConstraintName("outcomes_department_id_foreign");
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_outcomes_department_id");
             });
 
             modelBuilder.Entity<LearningOutcome>(entity => {
@@ -282,7 +289,8 @@ namespace server.Models
                 entity.HasOne(d => d.CourseInfo)
                     .WithMany(p => p.Outcomes)
                     .HasForeignKey(d => d.CourseInfoId)
-                    .HasConstraintName("outcomes_course_id_foreign");
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_outcomes_course_info_id");
             });
 
             modelBuilder.Entity<Student>(entity =>
@@ -330,7 +338,8 @@ namespace server.Models
                 entity.HasOne(d => d.Department)
                     .WithMany(p => p.Users)
                     .HasForeignKey(d => d.DepartmentId)
-                    .HasConstraintName("departments_id_foreign");
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_users_department_id");
             });
 
             OnModelCreatingPartial(modelBuilder);
