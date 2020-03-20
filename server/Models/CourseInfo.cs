@@ -12,11 +12,11 @@ namespace server.Models
         }
 
         public int Id { get; set; }
-        public int DepartmentId { get; set; }
         public string Code { get; set; }
         public string Name { get; set; }
         public int Credit { get; set; }
 
+        public int DepartmentId { get; set; }
         public virtual Department Department { get; set; }
         public virtual ICollection<Course> Courses { get; set; }
         public virtual ICollection<LearningOutcome> Outcomes { get; set; }

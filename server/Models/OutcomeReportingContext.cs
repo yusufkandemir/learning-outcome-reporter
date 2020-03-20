@@ -88,7 +88,7 @@ namespace server.Models
 
                 entity.Property(e => e.Grade)
                     .HasColumnName("grade")
-                    .HasColumnType("decimal(10, 0)");
+                    .HasColumnType("decimal(5, 2)");
 
                 entity.HasOne(d => d.AssignmentResult)
                     .WithMany(p => p.AssignmentTaskResults)
@@ -115,7 +115,7 @@ namespace server.Models
 
                 entity.Property(e => e.Weight)
                     .HasColumnName("weight")
-                    .HasColumnType("decimal(10, 0)");
+                    .HasColumnType("decimal(3, 3)");
 
                 entity.HasOne(d => d.Assignment)
                     .WithMany(p => p.AssignmentTasks)
@@ -136,12 +136,11 @@ namespace server.Models
                     .IsRequired()
                     .HasColumnName("type")
                     .HasMaxLength(10)
-                    .IsUnicode(false)
                     .HasConversion<string>();
 
                 entity.Property(e => e.Weight)
                     .HasColumnName("weight")
-                    .HasColumnType("decimal(10, 0)");
+                    .HasColumnType("decimal(3, 3)");
 
                 entity.HasOne(d => d.Course)
                     .WithMany(p => p.Assignments)
@@ -159,8 +158,7 @@ namespace server.Models
                 entity.Property(e => e.Code)
                     .IsRequired()
                     .HasColumnName("code")
-                    .HasMaxLength(7)
-                    .IsUnicode(false);
+                    .HasMaxLength(7);
 
                 entity.Property(e => e.Credit).HasColumnName("credit");
 
@@ -169,8 +167,7 @@ namespace server.Models
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasColumnName("name")
-                    .HasMaxLength(255)
-                    .IsUnicode(false);
+                    .HasMaxLength(64);
 
                 entity.HasOne(d => d.Department)
                     .WithMany(p => p.CourseInfos)
@@ -190,8 +187,7 @@ namespace server.Models
                 entity.Property(e => e.StudentId)
                     .IsRequired()
                     .HasColumnName("student_id")
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
+                    .HasMaxLength(10);
 
                 entity.HasOne(d => d.Course)
                     .WithMany(p => p.CourseResults)
@@ -218,7 +214,6 @@ namespace server.Models
                     .IsRequired()
                     .HasColumnName("semester")
                     .HasMaxLength(10)
-                    .IsUnicode(false)
                     .HasConversion<string>();
 
                 entity.Property(e => e.Year).HasColumnName("year");
@@ -239,8 +234,7 @@ namespace server.Models
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasColumnName("name")
-                    .HasMaxLength(255)
-                    .IsUnicode(false);
+                    .HasMaxLength(255);
             });
 
             modelBuilder.Entity<Outcome>(entity =>
@@ -256,21 +250,17 @@ namespace server.Models
 
                 entity.Property(e => e.Code)
                     .IsRequired()
-                    .HasColumnName("code")
-                    .HasMaxLength(255)
-                    .IsUnicode(false);
+                    .HasColumnName("code");
 
                 entity.Property(e => e.Description)
                     .IsRequired()
                     .HasColumnName("description")
-                    .HasMaxLength(255)
-                    .IsUnicode(false);
+                    .HasMaxLength(255);
 
                 entity.Property("Type")
                     .IsRequired()
                     .HasColumnName("type")
-                    .HasMaxLength(8)
-                    .IsUnicode(false);
+                    .HasMaxLength(8);
             });
 
             modelBuilder.Entity<ProgramOutcome>(entity => {
@@ -299,20 +289,17 @@ namespace server.Models
 
                 entity.Property(e => e.Id)
                     .HasColumnName("id")
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
+                    .HasMaxLength(10);
 
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasColumnName("name")
-                    .HasMaxLength(255)
-                    .IsUnicode(false);
+                    .HasMaxLength(255);
 
                 entity.Property(e => e.Surname)
                     .IsRequired()
                     .HasColumnName("surname")
-                    .HasMaxLength(255)
-                    .IsUnicode(false);
+                    .HasMaxLength(255);
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -326,14 +313,12 @@ namespace server.Models
                 entity.Property(e => e.Password)
                     .IsRequired()
                     .HasColumnName("password")
-                    .HasMaxLength(255)
-                    .IsUnicode(false);
+                    .HasMaxLength(255);
 
                 entity.Property(e => e.Username)
                     .IsRequired()
                     .HasColumnName("username")
-                    .HasMaxLength(255)
-                    .IsUnicode(false);
+                    .HasMaxLength(255);
 
                 entity.HasOne(d => d.Department)
                     .WithMany(p => p.Users)
