@@ -2,16 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server.Models;
+using Microsoft.AspNet.OData;
 
 namespace server.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class DepartmentController : ControllerBase
+    public class DepartmentController : ODataController
     {
         private readonly OutcomeReportingContext _context;
 
@@ -21,24 +19,19 @@ namespace server.Controllers
         }
 
         // GET: api/Department
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Department>>> GetDepartments()
+        [EnableQuery]
+        public IQueryable<Department> Get()
         {
-            return await _context.Departments.ToListAsync();
+            return  _context.Departments;
         }
 
         // GET: api/Department/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Department>> GetDepartment(int id)
+        [EnableQuery]
+        public SingleResult<Department> Get([FromODataUri] int key)
         {
-            var department = await _context.Departments.FindAsync(id);
+            IQueryable<Department> department =  _context.Departments.Where(x => x.Id == key);
 
-            if (department == null)
-            {
-                return NotFound();
-            }
-
-            return department;
+            return SingleResult.Create(department);
         }
 
         // PUT: api/Department/5
