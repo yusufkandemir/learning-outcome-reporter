@@ -24,7 +24,7 @@ namespace server.Controllers
         {
             return  _context.Departments;
         }
-        
+
         // GET: api/Department/5
         [EnableQuery]
         public SingleResult<Department> Get([FromODataUri] int key)
