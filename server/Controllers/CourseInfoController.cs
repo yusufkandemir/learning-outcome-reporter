@@ -2,16 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server.Models;
+using Microsoft.AspNet.OData;
 
 namespace server.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CourseInfoController : ControllerBase
+    public class CourseInfoController : ODataController
     {
         private readonly OutcomeReportingContext _context;
 
@@ -21,24 +19,19 @@ namespace server.Controllers
         }
 
         // GET: api/CourseInfo
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<CourseInfo>>> GetCourseInfos()
+        [EnableQuery]
+        public IQueryable<CourseInfo> Get()
         {
-            return await _context.CourseInfos.ToListAsync();
+            return  _context.CourseInfos;
         }
 
         // GET: api/CourseInfo/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<CourseInfo>> GetCourseInfo(int id)
+        [EnableQuery]
+        public SingleResult<CourseInfo> Get([FromODataUri] int key)
         {
-            var courseInfo = await _context.CourseInfos.FindAsync(id);
+            IQueryable<CourseInfo> courseInfo =  _context.CourseInfos.Where(x => x.Id == key);
 
-            if (courseInfo == null)
-            {
-                return NotFound();
-            }
-
-            return courseInfo;
+            return SingleResult.Create(courseInfo);
         }
 
         // PUT: api/CourseInfo/5
