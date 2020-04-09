@@ -2,16 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server.Models;
+using Microsoft.AspNet.OData;
 
 namespace server.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class StudentController : ControllerBase
+    public class StudentController : ODataController
     {
         private readonly OutcomeReportingContext _context;
 
@@ -21,24 +19,19 @@ namespace server.Controllers
         }
 
         // GET: api/Student
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Student>>> GetStudents()
+        [EnableQuery]
+        public IQueryable<Student> Get()
         {
-            return await _context.Students.ToListAsync();
+            return  _context.Students;
         }
 
         // GET: api/Student/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Student>> GetStudent(string id)
+        [EnableQuery]
+        public SingleResult<Student> Get([FromODataUri] string key)
         {
-            var student = await _context.Students.FindAsync(id);
+            IQueryable<Student> student =  _context.Students.Where(x => x.Id == key);
 
-            if (student == null)
-            {
-                return NotFound();
-            }
-
-            return student;
+            return SingleResult.Create(student);
         }
 
         // PUT: api/Student/5
