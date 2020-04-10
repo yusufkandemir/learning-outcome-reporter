@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server.Models;
 using Microsoft.AspNet.OData;
+using Microsoft.AspNet.OData.Results;
 
 namespace server.Controllers
 {
@@ -38,9 +39,9 @@ namespace server.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDepartment(int id, Department department)
+        public async Task<IActionResult> Put([FromODataUri] int key, [FromBody] Department department)
         {
-            if (id != department.Id)
+            if (key != department.Id)
             {
                 return BadRequest();
             }
@@ -53,7 +54,7 @@ namespace server.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!DepartmentExists(id))
+                if (!DepartmentExists(key))
                 {
                     return NotFound();
                 }
@@ -70,19 +71,19 @@ namespace server.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<Department>> PostDepartment(Department department)
+        public async Task<CreatedODataResult<Department>> Post([FromBody] Department department)
         {
             _context.Departments.Add(department);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetDepartment", new { id = department.Id }, department);
+            return Created(department);
         }
 
         // DELETE: api/Department/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Department>> DeleteDepartment(int id)
+        public async Task<ActionResult<Department>> Delete(int key)
         {
-            var department = await _context.Departments.FindAsync(id);
+            var department = await _context.Departments.FindAsync(key);
             if (department == null)
             {
                 return NotFound();

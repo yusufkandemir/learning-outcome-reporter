@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server.Models;
 using Microsoft.AspNet.OData;
+using Microsoft.AspNet.OData.Results;
 
 namespace server.Controllers
 {
@@ -38,9 +39,9 @@ namespace server.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCourseInfo(int id, CourseInfo courseInfo)
+        public async Task<IActionResult> Put([FromODataUri] int key, [FromBody] CourseInfo courseInfo)
         {
-            if (id != courseInfo.Id)
+            if (key != courseInfo.Id)
             {
                 return BadRequest();
             }
@@ -53,7 +54,7 @@ namespace server.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CourseInfoExists(id))
+                if (!CourseInfoExists(key))
                 {
                     return NotFound();
                 }
@@ -70,19 +71,19 @@ namespace server.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<CourseInfo>> PostCourseInfo(CourseInfo courseInfo)
+        public async Task<CreatedODataResult<CourseInfo>> Post([FromBody] CourseInfo courseInfo)
         {
             _context.CourseInfos.Add(courseInfo);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCourseInfo", new { id = courseInfo.Id }, courseInfo);
+            return Created(courseInfo);
         }
 
         // DELETE: api/CourseInfo/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<CourseInfo>> DeleteCourseInfo(int id)
+        public async Task<ActionResult<CourseInfo>> Delete(int key)
         {
-            var courseInfo = await _context.CourseInfos.FindAsync(id);
+            var courseInfo = await _context.CourseInfos.FindAsync(key);
             if (courseInfo == null)
             {
                 return NotFound();
