@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server.Models;
 using Microsoft.AspNet.OData;
+using Microsoft.AspNet.OData.Results;
 
 namespace server.Controllers
 {
@@ -38,9 +39,9 @@ namespace server.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutStudent(string id, Student student)
+        public async Task<IActionResult> Put([FromODataUri] string key, [FromBody] Student student)
         {
-            if (id != student.Id)
+            if (key != student.Id)
             {
                 return BadRequest();
             }
@@ -53,7 +54,7 @@ namespace server.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!StudentExists(id))
+                if (!StudentExists(key))
                 {
                     return NotFound();
                 }
@@ -70,33 +71,20 @@ namespace server.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<Student>> PostStudent(Student student)
+        public async Task<CreatedODataResult<Student>> Post([FromBody] Student student)
         {
             _context.Students.Add(student);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (StudentExists(student.Id))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            
+            await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetStudent", new { id = student.Id }, student);
+            return Created(student);
         }
 
         // DELETE: api/Student/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Student>> DeleteStudent(string id)
+        public async Task<ActionResult<Student>> Delete(string key)
         {
-            var student = await _context.Students.FindAsync(id);
+            var student = await _context.Students.FindAsync(key);
             if (student == null)
             {
                 return NotFound();
