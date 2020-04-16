@@ -96,7 +96,7 @@ namespace server.Controllers
 
         // DELETE: api/CourseInfo/5/Courses/10
         [ODataRoute("{id}")]
-        public async Task<ActionResult<Course>> DeleteCourse([FromODataUri] int courseInfoId, int id)
+        public async Task<ActionResult<Course>> DeleteCourse([FromODataUri] int courseInfoId, [FromODataUri] int id)
         {
             var course = await _context.Courses.FirstOrDefaultAsync(x => x.Id == id && x.CourseInfoId == courseInfoId);
             if (course == null)
