@@ -114,6 +114,5 @@ namespace server.Controllers
         {
             return _context.Assignments.Any(e => e.Id == id);
         }
-
     }
 }
