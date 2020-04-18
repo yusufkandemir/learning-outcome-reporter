@@ -44,6 +44,8 @@ namespace server
             builder.EntitySet<CourseInfo>("CourseInfo");
             builder.EntitySet<Student>("Student");
             builder.EntitySet<Course>("Course");
+            builder.EntitySet<Assignment>("Assignment");
+            builder.EntitySet<AssignmentTask>("AssignmentTask");
             return builder.GetEdmModel();
         }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
