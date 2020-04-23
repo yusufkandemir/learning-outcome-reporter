@@ -105,8 +105,8 @@ module.exports = function (ctx) {
       workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
-        name: 'Teaching Outcome Reporter',
-        short_name: 'Teaching Outcome Reporter',
+        name: 'Outcome Reporter',
+        short_name: 'Outcome Reporter',
         description: 'A reporting app for program/learning outcomes',
         display: 'standalone',
         orientation: 'portrait',
