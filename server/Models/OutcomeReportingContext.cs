@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using server.Models;
 
 namespace server.Models
 {
@@ -206,7 +207,9 @@ namespace server.Models
             {
                 entity.ToTable("courses");
 
-                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.CourseInfoId).HasColumnName("course_info_id");
 
