@@ -43,6 +43,9 @@ namespace server
             builder.EntitySet<Department>("Department");
             builder.EntitySet<CourseInfo>("CourseInfo");
             builder.EntitySet<Student>("Student");
+            builder.EntitySet<Course>("Course");
+            builder.EntitySet<Assignment>("Assignment");
+            builder.EntitySet<AssignmentTask>("AssignmentTask");
             builder.EntitySet<Outcome>("Outcome");
             builder.EntitySet<LearningOutcome>("LearningOutcome");
             builder.EntitySet<ProgramOutcome>("ProgramOutcome");
