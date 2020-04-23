@@ -1,0 +1,48 @@
+version: '3.4'
+
+services:
+  client:
+    image: client
+    build: client
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+
+  server:
+    image: server
+    build: server
+    container_name: server
+    ports:
+      - "8080:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings:OutcomeReportingContext=${CONNECTION_STRING}
+    networks:
+      - public
+      - private
+    depends_on:
+      - db
+
+  db:
+    image: db
+    build: database
+    volumes:
+      - dbdata_prod:/var/opt/mssql
+    networks:
+      - private
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${DB_SA_PASSWORD}
+      - MSSQL_PID=${DB_TYPE}
+      - DB_NAME=${DB_NAME}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+
+volumes:
+  dbdata_prod:
+
+networks:
+  public:
+  private:
