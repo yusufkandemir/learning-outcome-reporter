@@ -206,7 +206,9 @@ namespace server.Models
             {
                 entity.ToTable("courses");
 
-                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.CourseInfoId).HasColumnName("course_info_id");
 
