@@ -1,0 +1,59 @@
+version: '3.4'
+
+services:
+  client:
+    image: client
+    build:
+      target: develop
+      context: ./client
+    container_name: client
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./client/:/app/
+    networks:
+      - public
+    depends_on:
+      - server
+
+  server:
+    image: server
+    build:
+      target: debug
+      context: ./server
+    container_name: server
+    ports:
+      - "8081:5000"
+    environment:
+      - ConnectionStrings:OutcomeReportingContext=Server=db;Database=OutcomeReporting;User=db_user;Password=db_Passw0rd
+    volumes:
+      - ./server/:/src/
+    networks:
+      - public
+      - private
+    depends_on:
+      - db
+
+  db:
+    image: db
+    build: database
+    ports:
+      - "1433:1433"
+    volumes:
+      - dbdata:/var/opt/mssql
+    networks:
+      - private
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Password!123
+      - MSSQL_PID=Developer
+      - DB_NAME=OutcomeReporting
+      - DB_USERNAME=db_User
+      - DB_PASSWORD=db_Passw0rd
+
+volumes:
+  dbdata:
+
+networks:
+  public:
+  private:
