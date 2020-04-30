@@ -28,6 +28,14 @@
             @click="dialog = true"
           />
         </template>
+
+        <template v-slot:body-cell-actions="props">
+          <q-td :props="props">
+            <q-btn dense round flat color="grey" @click="deleteItem(props)" icon="mdi-delete">
+              <q-tooltip>Delete</q-tooltip>
+            </q-btn>
+          </q-td>
+        </template>
       </q-table>
       <q-dialog v-model="dialog">
         <q-card class="q-pa-sm">
@@ -77,7 +85,8 @@ export default {
           field: 'Name',
           sortable: true,
           searchable: true
-        }
+        },
+        { name: 'actions', label: 'Actions', align: 'right' }
       ],
       pagination: {
         page: 1,
@@ -203,6 +212,20 @@ export default {
 
     resetForm () {
       this.editedItem = Object.assign({}, this.defaultItem)
+    },
+
+    async deleteItem ({ row: item }) {
+      if (!confirm('Are you sure you want to delete this item?')) return
+
+      this.loading = true
+      await axios.delete(`/api/Department/${item.Id}`)
+      this.loading = false
+
+      // Trigger table for update
+      this.onRequest({
+        pagination: this.pagination,
+        filter: this.filter
+      })
     }
   }
 }
