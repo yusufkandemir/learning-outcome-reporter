@@ -118,7 +118,9 @@ export default {
           .map(column => `contains(${column.field}, '${filter}')`)
           .join(' or ')
 
-        params.append('$filter', filterQuery)
+        if (filterQuery) {
+          params.append('$filter', filterQuery)
+        }
       }
 
       const url = `/api/Department?${params.toString()}`
