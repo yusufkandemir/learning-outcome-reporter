@@ -10,8 +10,17 @@
         :pagination.sync="pagination"
         :rows-per-page-options="rowsPerPageOptions"
         :loading="loading"
+        :filter="filter"
         @request="onRequest"
-      ></q-table>
+      >
+        <template v-slot:top-right>
+          <q-input dense debounce="500" v-model="filter" placeholder="Search">
+            <template v-slot:append>
+              <q-icon name="mdi-magnify" />
+            </template>
+          </q-input>
+        </template>
+      </q-table>
     </div>
   </q-page>
 </template>
@@ -24,13 +33,15 @@ export default {
   data () {
     return {
       loading: false,
+      filter: '',
       items: [],
       columns: [
         {
           name: 'name',
           label: 'Name',
           field: 'Name',
-          sortable: true
+          sortable: true,
+          filterable: true
         }
       ],
       pagination: {
@@ -99,6 +110,15 @@ export default {
 
       if (sortBy) {
         params.append('$orderBy', `${sortBy} ${descending ? 'desc' : 'asc'}`)
+      }
+
+      if (filter) {
+        const filterQuery = this.columns
+          .filter(column => column.filterable)
+          .map(column => `contains(${column.field}, '${filter}')`)
+          .join(' or ')
+
+        params.append('$filter', filterQuery)
       }
 
       const url = `/api/Department?${params.toString()}`
