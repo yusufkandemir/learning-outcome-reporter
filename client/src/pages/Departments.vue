@@ -19,8 +19,36 @@
               <q-icon name="mdi-magnify" />
             </template>
           </q-input>
+
+          <q-btn
+            class="q-ml-md"
+            color="primary"
+            icon="mdi-domain-plus"
+            label="New Department"
+            @click="dialog = true"
+          />
         </template>
       </q-table>
+      <q-dialog v-model="dialog">
+        <q-card class="q-pa-sm">
+          <q-card-section>
+            <span class="text-h5">Create Department</span>
+          </q-card-section>
+
+          <q-card-section>
+            <q-input v-model="editedItem.Name" label="Name"></q-input>
+          </q-card-section>
+
+          <q-card-actions class="justify-end">
+            <q-btn flat color="primary" :loading="loading" @click="closeForm">
+              Cancel
+            </q-btn>
+            <q-btn flat color="primary" :loading="loading" @click="saveForm">
+              Save
+            </q-btn>
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
     </div>
   </q-page>
 </template>
@@ -35,6 +63,13 @@ export default {
       loading: false,
       filter: '',
       items: [],
+      dialog: false,
+      editedItem: {
+        Name: ''
+      },
+      defaultItem: {
+        Name: ''
+      },
       columns: [
         {
           name: 'name',
@@ -137,6 +172,37 @@ export default {
       const response = await axios(url)
 
       return response.data
+    },
+
+    async pushDataToServer (data) {
+      return axios({
+        url: '/api/Department',
+        method: 'POST',
+        data
+      })
+    },
+
+    async saveForm () {
+      this.loading = true
+      await this.pushDataToServer(this.editedItem)
+
+      this.loading = false
+      this.closeForm()
+      this.resetForm()
+
+      // Trigger table for update
+      this.onRequest({
+        pagination: this.pagination,
+        filter: this.filter
+      })
+    },
+
+    closeForm () {
+      this.dialog = false
+    },
+
+    resetForm () {
+      this.editedItem = Object.assign({}, this.defaultItem)
     }
   }
 }
