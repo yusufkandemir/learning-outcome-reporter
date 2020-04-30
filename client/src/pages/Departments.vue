@@ -41,7 +41,7 @@ export default {
           label: 'Name',
           field: 'Name',
           sortable: true,
-          filterable: true
+          searchable: true
         }
       ],
       pagination: {
@@ -72,9 +72,16 @@ export default {
       // Calculate starting row of data
       const startRow = (page - 1) * rowsPerPage
 
+      const search = {
+        term: filter,
+        fields: this.columns
+          .filter(column => column.searchable)
+          .map(column => column.field)
+      }
+
       let data
       try {
-        data = await this.fetchDataFromServer({ startRow, count: fetchCount, filter, sortBy, descending })
+        data = await this.fetchDataFromServer({ startRow, count: fetchCount, search, sortBy, descending })
       } catch (error) {
         this.loading = false
         this.$q.notify({
@@ -101,7 +108,7 @@ export default {
       this.loading = false
     },
 
-    async fetchDataFromServer ({ startRow, count, filter, sortBy, descending }) {
+    async fetchDataFromServer ({ startRow, count, search, sortBy, descending }) {
       const params = new URLSearchParams({
         $skip: startRow,
         $top: count,
@@ -112,15 +119,12 @@ export default {
         params.append('$orderBy', `${sortBy} ${descending ? 'desc' : 'asc'}`)
       }
 
-      if (filter) {
-        const filterQuery = this.columns
-          .filter(column => column.filterable)
-          .map(column => `contains(${column.field}, '${filter}')`)
+      if (search?.fields?.length > 0 && search?.term) {
+        const filterQuery = search.fields
+          .map(field => `contains(${field}, '${search.term}')`)
           .join(' or ')
 
-        if (filterQuery) {
-          params.append('$filter', filterQuery)
-        }
+        params.append('$filter', filterQuery)
       }
 
       const url = `/api/Department?${params.toString()}`
