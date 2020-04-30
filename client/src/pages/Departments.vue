@@ -61,7 +61,19 @@ export default {
       // Calculate starting row of data
       const startRow = (page - 1) * rowsPerPage
 
-      const data = await this.fetchDataFromServer({ startRow, count: fetchCount, filter, sortBy, descending })
+      let data
+      try {
+        data = await this.fetchDataFromServer({ startRow, count: fetchCount, filter, sortBy, descending })
+      } catch (error) {
+        this.loading = false
+        this.$q.notify({
+          type: 'negative',
+          message: 'An error occured while fetching data from the server',
+          caption: error.message
+        })
+
+        return
+      }
 
       // Clear out existing data and add new
       this.items.splice(0, this.items.length, ...data.value)
