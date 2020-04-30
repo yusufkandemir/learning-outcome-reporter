@@ -31,16 +31,22 @@
 
         <template v-slot:body-cell-actions="props">
           <q-td :props="props">
+            <q-btn dense round flat color="grey" @click="editItem(props)" icon="mdi-playlist-edit">
+              <q-tooltip>Quick Edit</q-tooltip>
+            </q-btn>
+            <q-btn dense round flat color="grey" :to="`/departments/${props.row.Id}`" icon="mdi-pencil">
+              <q-tooltip>Edit</q-tooltip>
+            </q-btn>
             <q-btn dense round flat color="grey" @click="deleteItem(props)" icon="mdi-delete">
               <q-tooltip>Delete</q-tooltip>
             </q-btn>
           </q-td>
         </template>
       </q-table>
-      <q-dialog v-model="dialog">
+      <q-dialog v-model="dialog" @hide="resetForm">
         <q-card class="q-pa-sm">
           <q-card-section>
-            <span class="text-h5">Create Department</span>
+            <span class="text-h5">{{ isUpdating ? 'Edit' : 'Create' }} Department</span>
           </q-card-section>
 
           <q-card-section>
@@ -72,6 +78,7 @@ export default {
       filter: '',
       items: [],
       dialog: false,
+      isUpdating: false,
       editedItem: {
         Name: ''
       },
@@ -183,17 +190,17 @@ export default {
       return response.data
     },
 
-    async pushDataToServer (data) {
+    async pushDataToServer (data, isUpdating) {
       return axios({
-        url: '/api/Department',
-        method: 'POST',
+        url: `/api/Department/${isUpdating ? data.Id : ''}`,
+        method: isUpdating ? 'PUT' : 'POST',
         data
       })
     },
 
     async saveForm () {
       this.loading = true
-      await this.pushDataToServer(this.editedItem)
+      await this.pushDataToServer(this.editedItem, this.isUpdating)
 
       this.loading = false
       this.closeForm()
@@ -211,7 +218,14 @@ export default {
     },
 
     resetForm () {
+      this.isUpdating = false
       this.editedItem = Object.assign({}, this.defaultItem)
+    },
+
+    async editItem ({ row: item }) {
+      this.isUpdating = true
+      this.editedItem = Object.assign({}, item)
+      this.dialog = true
     },
 
     async deleteItem ({ row: item }) {
