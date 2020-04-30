@@ -54,6 +54,13 @@ export default {
       rowsPerPageOptions: [12, 24, 36, 48]
     }
   },
+  computed: {
+    searchableFields () {
+      return this.columns
+        .filter(column => column.searchable)
+        .map(column => column.field)
+    }
+  },
   mounted () {
     this.onRequest({
       pagination: this.pagination,
@@ -74,9 +81,7 @@ export default {
 
       const search = {
         term: filter,
-        fields: this.columns
-          .filter(column => column.searchable)
-          .map(column => column.field)
+        fields: this.searchableFields
       }
 
       let data
