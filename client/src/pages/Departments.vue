@@ -17,6 +17,8 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   name: 'DepartmentsPage',
   data () {
@@ -89,10 +91,9 @@ export default {
 
       const url = `/api/Department?${params.toString()}`
 
-      const response = await fetch(url)
-      const data = await response.json()
+      const response = await axios(url)
 
-      return data
+      return response.data
     }
   }
 }
