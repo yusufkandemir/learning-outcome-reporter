@@ -147,6 +147,8 @@ export default {
       // TODO: call onRequest
     }
 
+    const filter = ref('')
+
     return {
       formLoading,
       isUpdating,
@@ -155,13 +157,13 @@ export default {
       saveForm,
       closeForm,
       resetForm,
-      editItem
+      editItem,
+      filter
     }
   },
   data () {
     return {
       loading: false,
-      filter: '',
       items: [],
       columns: [
         {
