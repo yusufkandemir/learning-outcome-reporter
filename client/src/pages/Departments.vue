@@ -54,10 +54,10 @@
           </q-card-section>
 
           <q-card-actions class="justify-end">
-            <q-btn flat color="primary" :loading="loading" @click="closeForm">
+            <q-btn flat color="primary" :loading="formLoading" @click="closeForm">
               Cancel
             </q-btn>
-            <q-btn flat color="primary" :loading="loading" @click="saveForm">
+            <q-btn flat color="primary" :loading="formLoading" @click="saveForm">
               Save
             </q-btn>
           </q-card-actions>
@@ -75,6 +75,7 @@ export default {
   data () {
     return {
       loading: false,
+      formLoading: false,
       filter: '',
       items: [],
       dialog: false,
@@ -199,10 +200,10 @@ export default {
     },
 
     async saveForm () {
-      this.loading = true
+      this.formLoading = true
       await this.pushDataToServer(this.editedItem, this.isUpdating)
 
-      this.loading = false
+      this.formLoading = false
       this.closeForm()
       this.resetForm()
 
