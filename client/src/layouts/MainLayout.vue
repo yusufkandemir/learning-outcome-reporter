@@ -43,6 +43,21 @@
               Dashboard
             </q-item-section>
           </q-item>
+
+          <q-item
+            to="/departments"
+            exact
+            clickable
+            v-ripple
+          >
+            <q-item-section avatar>
+              <q-icon name="mdi-domain"></q-icon>
+            </q-item-section>
+
+            <q-item-section>
+              Departments
+            </q-item-section>
+          </q-item>
         </q-list>
       </q-scroll-area>
     </q-drawer>
