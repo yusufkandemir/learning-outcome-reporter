@@ -99,6 +99,14 @@ async function fetchDataFromServer ({ startRow, count, search, sortBy, descendin
   return response.data
 }
 
+async function pushDataToServer (data, isUpdating) {
+  return axios({
+    url: `/api/Department/${isUpdating ? data.Id : ''}`,
+    method: isUpdating ? 'PUT' : 'POST',
+    data
+  })
+}
+
 export default {
   name: 'DepartmentsPage',
   data () {
@@ -194,17 +202,9 @@ export default {
       this.loading = false
     },
 
-    async pushDataToServer (data, isUpdating) {
-      return axios({
-        url: `/api/Department/${isUpdating ? data.Id : ''}`,
-        method: isUpdating ? 'PUT' : 'POST',
-        data
-      })
-    },
-
     async saveForm () {
       this.formLoading = true
-      await this.pushDataToServer(this.editedItem, this.isUpdating)
+      await pushDataToServer(this.editedItem, this.isUpdating)
 
       this.formLoading = false
       this.closeForm()
