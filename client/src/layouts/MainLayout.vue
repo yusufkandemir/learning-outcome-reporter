@@ -13,9 +13,8 @@
 
         <q-toolbar-title>
           <q-avatar>
-            <img src="https://cdn.quasar.dev/logo/svg/quasar-logo.svg">
-          </q-avatar>
-          Outcome Reporter
+            <img src="https://cdn.quasar.dev/logo/svg/quasar-logo.svg" />
+          </q-avatar>Outcome Reporter
         </q-toolbar-title>
       </q-toolbar>
     </q-header>
@@ -29,34 +28,20 @@
     >
       <q-scroll-area class="fit">
         <q-list padding>
-          <q-item
-            to="/"
-            exact
-            clickable
-            v-ripple
-          >
+          <q-item to="/" exact clickable v-ripple>
             <q-item-section avatar>
               <q-icon name="mdi-view-dashboard"></q-icon>
             </q-item-section>
 
-            <q-item-section>
-              Dashboard
-            </q-item-section>
+            <q-item-section>Dashboard</q-item-section>
           </q-item>
 
-          <q-item
-            to="/departments"
-            exact
-            clickable
-            v-ripple
-          >
+          <q-item to="/departments" exact clickable v-ripple>
             <q-item-section avatar>
               <q-icon name="mdi-domain"></q-icon>
             </q-item-section>
 
-            <q-item-section>
-              Departments
-            </q-item-section>
+            <q-item-section>Departments</q-item-section>
           </q-item>
         </q-list>
       </q-scroll-area>
@@ -66,14 +51,9 @@
       <router-view />
     </q-page-container>
 
-    <q-footer
-      elevated
-      class="bg-black text-center q-py-xs"
-    >
+    <q-footer elevated class="bg-black text-center q-py-xs">
       <div>IKU Department of Computer Engineering &copy; 2020</div>
-      <div>
-        Made with 💖 by YODA
-      </div>
+      <div>Made with 💖 by YODA</div>
     </q-footer>
   </q-layout>
 </template>

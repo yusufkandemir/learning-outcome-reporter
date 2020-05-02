@@ -34,7 +34,14 @@
             <q-btn dense round flat color="grey" @click="editItem(props)" icon="mdi-playlist-edit">
               <q-tooltip>Quick Edit</q-tooltip>
             </q-btn>
-            <q-btn dense round flat color="grey" :to="`/departments/${props.row.Id}`" icon="mdi-pencil">
+            <q-btn
+              dense
+              round
+              flat
+              color="grey"
+              :to="`/departments/${props.row.Id}`"
+              icon="mdi-pencil"
+            >
               <q-tooltip>Edit</q-tooltip>
             </q-btn>
             <q-btn dense round flat color="grey" @click="deleteItem(props)" icon="mdi-delete">
@@ -54,12 +61,8 @@
           </q-card-section>
 
           <q-card-actions class="justify-end">
-            <q-btn flat color="primary" :loading="formLoading" @click="closeForm">
-              Cancel
-            </q-btn>
-            <q-btn flat color="primary" :loading="formLoading" @click="saveForm">
-              Save
-            </q-btn>
+            <q-btn flat color="primary" :loading="formLoading" @click="closeForm">Cancel</q-btn>
+            <q-btn flat color="primary" :loading="formLoading" @click="saveForm">Save</q-btn>
           </q-card-actions>
         </q-card>
       </q-dialog>
