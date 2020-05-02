@@ -109,20 +109,60 @@ async function pushDataToServer (data, isUpdating) {
 
 export default {
   name: 'DepartmentsPage',
+  setup (props, context) {
+    const formLoading = ref(false)
+    const isUpdating = ref(false)
+    const dialog = ref(false)
+
+    const defaultItem = {
+      Name: ''
+    }
+    const editedItem = reactive({
+      Name: ''
+    })
+
+    const closeForm = () => {
+      dialog.value = false
+    }
+
+    const resetForm = () => {
+      isUpdating.value = false
+      Object.assign(editedItem, defaultItem)
+    }
+
+    const editItem = ({ row: item }) => {
+      isUpdating.value = true
+      Object.assign(editedItem, {}, item)
+      dialog.value = true
+    }
+
+    const saveForm = async () => {
+      formLoading.value = true
+      await pushDataToServer(editedItem, isUpdating)
+
+      formLoading.value = false
+      closeForm()
+      resetForm()
+
+      // TODO: call onRequest
+    }
+
+    return {
+      formLoading,
+      isUpdating,
+      dialog,
+      editedItem,
+      saveForm,
+      closeForm,
+      resetForm,
+      editItem
+    }
+  },
   data () {
     return {
       loading: false,
-      formLoading: false,
       filter: '',
       items: [],
-      dialog: false,
-      isUpdating: false,
-      editedItem: {
-        Name: ''
-      },
-      defaultItem: {
-        Name: ''
-      },
       columns: [
         {
           name: 'name',
@@ -200,36 +240,6 @@ export default {
       this.pagination.descending = descending
 
       this.loading = false
-    },
-
-    async saveForm () {
-      this.formLoading = true
-      await pushDataToServer(this.editedItem, this.isUpdating)
-
-      this.formLoading = false
-      this.closeForm()
-      this.resetForm()
-
-      // Trigger table for update
-      this.onRequest({
-        pagination: this.pagination,
-        filter: this.filter
-      })
-    },
-
-    closeForm () {
-      this.dialog = false
-    },
-
-    resetForm () {
-      this.isUpdating = false
-      this.editedItem = Object.assign({}, this.defaultItem)
-    },
-
-    async editItem ({ row: item }) {
-      this.isUpdating = true
-      this.editedItem = Object.assign({}, item)
-      this.dialog = true
     },
 
     async deleteItem ({ row: item }) {
