@@ -73,6 +73,32 @@
 <script>
 import axios from 'axios'
 
+async function fetchDataFromServer ({ startRow, count, search, sortBy, descending }) {
+  const params = new URLSearchParams({
+    $skip: startRow,
+    $top: count,
+    $count: true
+  })
+
+  if (sortBy) {
+    params.append('$orderBy', `${sortBy} ${descending ? 'desc' : 'asc'}`)
+  }
+
+  if (search?.fields?.length > 0 && search?.term) {
+    const filterQuery = search.fields
+      .map(field => `contains(${field}, '${search.term}')`)
+      .join(' or ')
+
+    params.append('$filter', filterQuery)
+  }
+
+  const url = `/api/Department?${params.toString()}`
+
+  const response = await axios(url)
+
+  return response.data
+}
+
 export default {
   name: 'DepartmentsPage',
   data () {
@@ -141,7 +167,7 @@ export default {
 
       let data
       try {
-        data = await this.fetchDataFromServer({ startRow, count: fetchCount, search, sortBy, descending })
+        data = await fetchDataFromServer({ startRow, count: fetchCount, search, sortBy, descending })
       } catch (error) {
         this.loading = false
         this.$q.notify({
@@ -166,32 +192,6 @@ export default {
       this.pagination.descending = descending
 
       this.loading = false
-    },
-
-    async fetchDataFromServer ({ startRow, count, search, sortBy, descending }) {
-      const params = new URLSearchParams({
-        $skip: startRow,
-        $top: count,
-        $count: true
-      })
-
-      if (sortBy) {
-        params.append('$orderBy', `${sortBy} ${descending ? 'desc' : 'asc'}`)
-      }
-
-      if (search?.fields?.length > 0 && search?.term) {
-        const filterQuery = search.fields
-          .map(field => `contains(${field}, '${search.term}')`)
-          .join(' or ')
-
-        params.append('$filter', filterQuery)
-      }
-
-      const url = `/api/Department?${params.toString()}`
-
-      const response = await axios(url)
-
-      return response.data
     },
 
     async pushDataToServer (data, isUpdating) {
