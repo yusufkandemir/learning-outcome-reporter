@@ -72,6 +72,7 @@
 
 <script>
 import axios from 'axios'
+import { ref, reactive } from '@vue/composition-api'
 
 async function fetchDataFromServer ({ startRow, count, search, sortBy, descending }) {
   const params = new URLSearchParams({
@@ -148,6 +149,26 @@ export default {
     }
 
     const filter = ref('')
+    const loading = ref(false)
+    const items = ref([])
+    const rowsPerPageOptions = [12, 24, 36, 48]
+    const pagination = reactive({
+      page: 1,
+      sortBy: 'name',
+      descending: false,
+      rowsPerPage: context.root.$q.screen.xs ? 12 : 24,
+      rowsNumber: 0
+    })
+    const columns = ref([
+      {
+        name: 'name',
+        label: 'Name',
+        field: 'Name',
+        sortable: true,
+        searchable: true
+      },
+      { name: 'actions', label: 'Actions', align: 'right' }
+    ])
 
     return {
       formLoading,
@@ -158,31 +179,12 @@ export default {
       closeForm,
       resetForm,
       editItem,
-      filter
-    }
-  },
-  data () {
-    return {
-      loading: false,
-      items: [],
-      columns: [
-        {
-          name: 'name',
-          label: 'Name',
-          field: 'Name',
-          sortable: true,
-          searchable: true
-        },
-        { name: 'actions', label: 'Actions', align: 'right' }
-      ],
-      pagination: {
-        page: 1,
-        sortBy: 'name',
-        descending: false,
-        rowsPerPage: this.$q.screen.xs ? 12 : 24,
-        rowsNumber: 0
-      },
-      rowsPerPageOptions: [12, 24, 36, 48]
+      filter,
+      loading,
+      items,
+      rowsPerPageOptions,
+      pagination,
+      columns
     }
   },
   computed: {
