@@ -215,7 +215,6 @@ export default {
       rowsPerPageOptions,
       pagination: toRefs(pagination),
       columns,
-      searchableFields,
       onRequest
     }
   }
