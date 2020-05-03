@@ -81,6 +81,8 @@
 import axios from 'axios'
 import { ref, reactive, computed, onMounted, toRefs } from '@vue/composition-api'
 
+import { useForm } from '../composition/useForm'
+
 async function fetchDataFromServer ({ startRow, count, search, sortBy, descending }) {
   const params = new URLSearchParams({
     $skip: startRow,
@@ -222,50 +224,6 @@ export default {
       columns,
       onRequest
     }
-  }
-}
-
-function useForm (defaultValue, onSave) {
-  const loading = ref(false)
-  const isUpdating = ref(false)
-  const isOpen = ref(false)
-
-  const value = reactive({ ...defaultValue })
-
-  const closeForm = () => {
-    isOpen.value = false
-  }
-
-  const resetForm = () => {
-    isUpdating.value = false
-    Object.assign(value, defaultValue)
-  }
-
-  const editItem = item => {
-    isUpdating.value = true
-    Object.assign(value, {}, item)
-    isOpen.value = true
-  }
-
-  const saveForm = async () => {
-    loading.value = true
-
-    await onSave(value, isUpdating.value)
-
-    loading.value = false
-    closeForm()
-    resetForm()
-  }
-
-  return {
-    loading,
-    isUpdating,
-    isOpen,
-    value,
-    saveForm,
-    closeForm,
-    resetForm,
-    editItem
   }
 }
 
