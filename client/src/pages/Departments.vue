@@ -72,7 +72,7 @@
 
 <script>
 import axios from 'axios'
-import { ref, reactive, computed, onMounted } from '@vue/composition-api'
+import { ref, reactive, computed, onMounted, toRefs } from '@vue/composition-api'
 
 async function fetchDataFromServer ({ startRow, count, search, sortBy, descending }) {
   const params = new URLSearchParams({
@@ -214,7 +214,7 @@ export default {
       loading,
       items,
       rowsPerPageOptions,
-      pagination,
+      pagination: toRefs(pagination),
       columns,
       searchableFields
     }
