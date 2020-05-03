@@ -111,14 +111,21 @@ async function pushDataToServer (data, isUpdating) {
 export default {
   name: 'DepartmentsPage',
   setup (props, context) {
-    const { loading: formLoading, value: editedItem, ...formStuff } = useForm(async (data, isUpdating) => {
-      await pushDataToServer(data, isUpdating)
+    const defaultValue = {
+      Id: 0,
+      Name: ''
+    }
+    const { loading: formLoading, value: editedItem, ...formStuff } = useForm(
+      defaultValue,
+      async (data, isUpdating) => {
+        await pushDataToServer(data, isUpdating)
 
-      onRequest({
-        pagination,
-        filter: filter.value
-      })
-    })
+        onRequest({
+          pagination,
+          filter: filter.value
+        })
+      }
+    )
 
     const filter = ref('')
     const loading = ref(false)
@@ -234,15 +241,11 @@ export default {
   }
 }
 
-function useForm (onSave) {
+function useForm (defaultValue, onSave) {
   const loading = ref(false)
   const isUpdating = ref(false)
   const dialog = ref(false)
 
-  const defaultValue = {
-    Id: 0,
-    Name: ''
-  }
   const value = reactive({ ...defaultValue })
 
   const closeForm = () => {
