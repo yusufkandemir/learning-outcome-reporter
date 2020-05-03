@@ -72,7 +72,7 @@
 
 <script>
 import axios from 'axios'
-import { ref, reactive, computed } from '@vue/composition-api'
+import { ref, reactive, computed, onMounted } from '@vue/composition-api'
 
 async function fetchDataFromServer ({ startRow, count, search, sortBy, descending }) {
   const params = new URLSearchParams({
@@ -190,6 +190,13 @@ export default {
       })
     }
 
+    onMounted(() => {
+      onRequest({
+        pagination,
+        filter: filter.value
+      })
+    })
+
     return {
       // Form (create/edit) related
       formLoading,
@@ -211,12 +218,6 @@ export default {
       columns,
       searchableFields
     }
-  },
-  mounted () {
-    this.onRequest({
-      pagination: this.pagination,
-      filter: ''
-    })
   },
   methods: {
     async onRequest ({ pagination, filter }) {
