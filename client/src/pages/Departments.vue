@@ -25,7 +25,7 @@
             color="primary"
             icon="mdi-domain-plus"
             label="New Department"
-            @click="dialog = true"
+            @click="isFormOpen = true"
           />
         </template>
 
@@ -57,7 +57,7 @@
           </q-td>
         </template>
       </q-table>
-      <q-dialog v-model="dialog" @hide="resetForm">
+      <q-dialog v-model="isFormOpen" @hide="resetForm">
         <q-card class="q-pa-sm">
           <q-card-section>
             <span class="text-h5">{{ isUpdating ? 'Edit' : 'Create' }} Department</span>
@@ -122,7 +122,7 @@ export default {
       Id: 0,
       Name: ''
     }
-    const { loading: formLoading, value: editedItem, ...formStuff } = useForm(
+    const { loading: formLoading, value: editedItem, isOpen: isFormOpen, ...formStuff } = useForm(
       defaultValue,
       async (data, isUpdating) => {
         await pushDataToServer(data, isUpdating)
@@ -229,6 +229,7 @@ export default {
       // Form (create/edit) related
       formLoading,
       editedItem,
+      isFormOpen,
       ...formStuff,
       // Delete related
       deleteItem,
@@ -248,12 +249,12 @@ export default {
 function useForm (defaultValue, onSave) {
   const loading = ref(false)
   const isUpdating = ref(false)
-  const dialog = ref(false)
+  const isOpen = ref(false)
 
   const value = reactive({ ...defaultValue })
 
   const closeForm = () => {
-    dialog.value = false
+    isOpen.value = false
   }
 
   const resetForm = () => {
@@ -264,7 +265,7 @@ function useForm (defaultValue, onSave) {
   const editItem = item => {
     isUpdating.value = true
     Object.assign(value, {}, item)
-    dialog.value = true
+    isOpen.value = true
   }
 
   const saveForm = async () => {
@@ -280,7 +281,7 @@ function useForm (defaultValue, onSave) {
   return {
     loading,
     isUpdating,
-    dialog,
+    isOpen,
     value,
     saveForm,
     closeForm,
