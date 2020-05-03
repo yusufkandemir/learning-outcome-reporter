@@ -145,7 +145,10 @@ export default {
       closeForm()
       resetForm()
 
-      // TODO: call onRequest
+      onRequest({
+        pagination,
+        filter: filter.value
+      })
     }
 
     const filter = ref('')
