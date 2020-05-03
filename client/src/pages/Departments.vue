@@ -31,7 +31,14 @@
 
         <template v-slot:body-cell-actions="props">
           <q-td :props="props">
-            <q-btn dense round flat color="grey" @click="editItem(props)" icon="mdi-playlist-edit">
+            <q-btn
+              dense
+              round
+              flat
+              color="grey"
+              @click="editItem(props.row)"
+              icon="mdi-playlist-edit"
+            >
               <q-tooltip>Quick Edit</q-tooltip>
             </q-btn>
             <q-btn
@@ -257,7 +264,7 @@ function useForm (defaultValue, onSave) {
     Object.assign(value, defaultValue)
   }
 
-  const editItem = ({ row: item }) => {
+  const editItem = item => {
     isUpdating.value = true
     Object.assign(value, {}, item)
     dialog.value = true
