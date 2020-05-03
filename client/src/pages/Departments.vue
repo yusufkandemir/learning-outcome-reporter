@@ -200,6 +200,51 @@ export default {
       })
     })
 
+    const onRequest = async ({ pagination: newPagination, filter: newFilter }) => {
+      loading.value = true
+
+      const { page, rowsPerPage, rowsNumber, sortBy, descending } = newPagination
+
+      // Get all rows if 'All' (0) is selected
+      const fetchCount = rowsPerPage === 0 ? rowsNumber : rowsPerPage
+
+      // Calculate starting row of data
+      const startRow = (page - 1) * rowsPerPage
+
+      const search = {
+        term: newFilter,
+        fields: searchableFields.value
+      }
+
+      let data
+      try {
+        data = await fetchDataFromServer({ startRow, count: fetchCount, search, sortBy, descending })
+      } catch (error) {
+        loading.value = false
+        context.root.$q.notify({
+          type: 'negative',
+          message: 'An error occured while fetching data from the server',
+          caption: error.message
+        })
+
+        return
+      }
+
+      // Clear out existing data and add new
+      items.value.splice(0, items.value.length, ...data.value)
+
+      // Update rowsNumber with total count
+      pagination.rowsNumber = parseInt(data['@odata.count'])
+
+      // Update the local pagination object
+      pagination.page = page
+      pagination.rowsPerPage = rowsPerPage
+      pagination.sortBy = sortBy
+      pagination.descending = descending
+
+      loading.value = false
+    }
+
     return {
       // Form (create/edit) related
       formLoading,
@@ -219,53 +264,8 @@ export default {
       rowsPerPageOptions,
       pagination: toRefs(pagination),
       columns,
-      searchableFields
-    }
-  },
-  methods: {
-    async onRequest ({ pagination, filter }) {
-      this.loading = true
-
-      const { page, rowsPerPage, rowsNumber, sortBy, descending } = pagination
-
-      // Get all rows if 'All' (0) is selected
-      const fetchCount = rowsPerPage === 0 ? rowsNumber : rowsPerPage
-
-      // Calculate starting row of data
-      const startRow = (page - 1) * rowsPerPage
-
-      const search = {
-        term: filter,
-        fields: this.searchableFields
-      }
-
-      let data
-      try {
-        data = await fetchDataFromServer({ startRow, count: fetchCount, search, sortBy, descending })
-      } catch (error) {
-        this.loading = false
-        this.$q.notify({
-          type: 'negative',
-          message: 'An error occured while fetching data from the server',
-          caption: error.message
-        })
-
-        return
-      }
-
-      // Clear out existing data and add new
-      this.items.splice(0, this.items.length, ...data.value)
-
-      // Update rowsNumber with total count
-      this.pagination.rowsNumber = parseInt(data['@odata.count'])
-
-      // Update the local pagination object
-      this.pagination.page = page
-      this.pagination.rowsPerPage = rowsPerPage
-      this.pagination.sortBy = sortBy
-      this.pagination.descending = descending
-
-      this.loading = false
+      searchableFields,
+      onRequest
     }
   }
 }
