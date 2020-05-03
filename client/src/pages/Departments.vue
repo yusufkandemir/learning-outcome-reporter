@@ -116,6 +116,7 @@ export default {
     const dialog = ref(false)
 
     const defaultItem = {
+      Id: 0,
       Name: ''
     }
     const editedItem = reactive({ ...defaultItem })
