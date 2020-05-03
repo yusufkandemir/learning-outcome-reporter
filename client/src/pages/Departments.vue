@@ -180,7 +180,12 @@ export default {
         }
 
         try {
-          return await fetchDataFromServer({ startRow, count, search, sortBy, descending })
+          const data = await fetchDataFromServer({ startRow, count, search, sortBy, descending })
+
+          return {
+            items: data.value,
+            count: data['@odata.count']
+          }
         } catch (error) {
           context.root.$q.notify({
             type: 'negative',
@@ -289,10 +294,10 @@ function useServerSideProcessedTable (pagination, fetchData) {
     }
 
     // Clear out existing data and add new
-    items.value.splice(0, items.value.length, ...data.value)
+    items.value.splice(0, items.value.length, ...data.items)
 
     // Update rowsNumber with total count
-    pagination.rowsNumber = parseInt(data['@odata.count'])
+    pagination.rowsNumber = parseInt(data.count)
 
     // Update the local pagination object
     pagination.page = page
