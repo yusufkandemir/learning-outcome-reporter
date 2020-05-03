@@ -36,7 +36,7 @@
               round
               flat
               color="grey"
-              @click="editItem(props.row)"
+              @click="$refs.form.editItem(props.row)"
               icon="mdi-playlist-edit"
             >
               <q-tooltip>Quick Edit</q-tooltip>
@@ -57,22 +57,17 @@
           </q-td>
         </template>
       </q-table>
-      <q-dialog v-model="isFormOpen" @hide="resetForm">
-        <q-card class="q-pa-sm">
-          <q-card-section>
-            <span class="text-h5">{{ isUpdating ? 'Edit' : 'Create' }} Department</span>
-          </q-card-section>
 
-          <q-card-section>
-            <q-input v-model="editedItem.Name" label="Name"></q-input>
-          </q-card-section>
-
-          <q-card-actions class="justify-end">
-            <q-btn flat color="primary" :loading="formLoading" @click="closeForm">Cancel</q-btn>
-            <q-btn flat color="primary" :loading="formLoading" @click="saveForm">Save</q-btn>
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
+      <o-popup-form
+        ref="form"
+        v-model="isFormOpen"
+        title="Department"
+        :default-value="defaultValue"
+        @save="onSave"
+        v-slot="{ value }"
+      >
+        <q-input v-model="value.Name" label="Name"></q-input>
+      </o-popup-form>
     </div>
   </q-page>
 </template>
@@ -81,26 +76,28 @@
 import axios from 'axios'
 import { ref, reactive, computed, onMounted, toRefs } from '@vue/composition-api'
 
-import { useForm } from '../composition/useForm'
+import OPopupForm from '../components/OPopupForm'
 import { useServerSideProcessedTable } from '../composition/useServerSideProcessedTable'
 
 import { fetchDataFromServer, pushDataToServer } from '../services/ApiService'
 
 export default {
   name: 'DepartmentsPage',
+  components: {
+    OPopupForm
+  },
   setup (props, context) {
     const defaultValue = {
       Id: 0,
       Name: ''
     }
-    const { loading: formLoading, value: editedItem, isOpen: isFormOpen, ...formStuff } = useForm(
-      defaultValue,
-      async (data, isUpdating) => {
-        await pushDataToServer(data, isUpdating)
+    const isFormOpen = ref(false)
 
-        refreshTable()
-      }
-    )
+    const onSave = async (data, isUpdating) => {
+      await pushDataToServer(data, isUpdating)
+
+      refreshTable()
+    }
 
     const filter = ref('')
     const rowsPerPageOptions = [12, 24, 36, 48]
@@ -178,10 +175,9 @@ export default {
 
     return {
       // Form (create/edit) related
-      formLoading,
-      editedItem,
+      onSave,
       isFormOpen,
-      ...formStuff,
+      defaultValue,
       // Delete related
       deleteItem,
       // Table related
