@@ -25,13 +25,20 @@
             color="primary"
             icon="mdi-domain-plus"
             label="New Department"
-            @click="dialog = true"
+            @click="isFormOpen = true"
           />
         </template>
 
         <template v-slot:body-cell-actions="props">
           <q-td :props="props">
-            <q-btn dense round flat color="grey" @click="editItem(props)" icon="mdi-playlist-edit">
+            <q-btn
+              dense
+              round
+              flat
+              color="grey"
+              @click="editItem(props.row)"
+              icon="mdi-playlist-edit"
+            >
               <q-tooltip>Quick Edit</q-tooltip>
             </q-btn>
             <q-btn
@@ -50,7 +57,7 @@
           </q-td>
         </template>
       </q-table>
-      <q-dialog v-model="dialog" @hide="resetForm">
+      <q-dialog v-model="isFormOpen" @hide="resetForm">
         <q-card class="q-pa-sm">
           <q-card-section>
             <span class="text-h5">{{ isUpdating ? 'Edit' : 'Create' }} Department</span>
@@ -72,178 +79,119 @@
 
 <script>
 import axios from 'axios'
+import { ref, reactive, computed, onMounted, toRefs } from '@vue/composition-api'
+
+import { useForm } from '../composition/useForm'
+import { useServerSideProcessedTable } from '../composition/useServerSideProcessedTable'
+
+import { fetchDataFromServer, pushDataToServer } from '../services/ApiService'
 
 export default {
   name: 'DepartmentsPage',
-  data () {
-    return {
-      loading: false,
-      formLoading: false,
-      filter: '',
-      items: [],
-      dialog: false,
-      isUpdating: false,
-      editedItem: {
-        Name: ''
-      },
-      defaultItem: {
-        Name: ''
-      },
-      columns: [
-        {
-          name: 'name',
-          label: 'Name',
-          field: 'Name',
-          sortable: true,
-          searchable: true
-        },
-        { name: 'actions', label: 'Actions', align: 'right' }
-      ],
-      pagination: {
-        page: 1,
-        sortBy: 'name',
-        descending: false,
-        rowsPerPage: this.$q.screen.xs ? 12 : 24,
-        rowsNumber: 0
-      },
-      rowsPerPageOptions: [12, 24, 36, 48]
+  setup (props, context) {
+    const defaultValue = {
+      Id: 0,
+      Name: ''
     }
-  },
-  computed: {
-    searchableFields () {
-      return this.columns
+    const { loading: formLoading, value: editedItem, isOpen: isFormOpen, ...formStuff } = useForm(
+      defaultValue,
+      async (data, isUpdating) => {
+        await pushDataToServer(data, isUpdating)
+
+        refreshTable()
+      }
+    )
+
+    const filter = ref('')
+    const rowsPerPageOptions = [12, 24, 36, 48]
+    const pagination = reactive({
+      page: 1,
+      sortBy: 'name',
+      descending: false,
+      rowsPerPage: context.root.$q.screen.xs ? 12 : 24,
+      rowsNumber: 0
+    })
+    const columns = ref([
+      {
+        name: 'name',
+        label: 'Name',
+        field: 'Name',
+        sortable: true,
+        searchable: true
+      },
+      { name: 'actions', label: 'Actions', align: 'right' }
+    ])
+
+    const searchableFields = computed(() => {
+      return columns.value
         .filter(column => column.searchable)
         .map(column => column.field)
-    }
-  },
-  mounted () {
-    this.onRequest({
-      pagination: this.pagination,
-      filter: ''
     })
-  },
-  methods: {
-    async onRequest ({ pagination, filter }) {
-      this.loading = true
 
-      const { page, rowsPerPage, rowsNumber, sortBy, descending } = pagination
-
-      // Get all rows if 'All' (0) is selected
-      const fetchCount = rowsPerPage === 0 ? rowsNumber : rowsPerPage
-
-      // Calculate starting row of data
-      const startRow = (page - 1) * rowsPerPage
-
-      const search = {
-        term: filter,
-        fields: this.searchableFields
-      }
-
-      let data
-      try {
-        data = await this.fetchDataFromServer({ startRow, count: fetchCount, search, sortBy, descending })
-      } catch (error) {
-        this.loading = false
-        this.$q.notify({
-          type: 'negative',
-          message: 'An error occured while fetching data from the server',
-          caption: error.message
-        })
-
-        return
-      }
-
-      // Clear out existing data and add new
-      this.items.splice(0, this.items.length, ...data.value)
-
-      // Update rowsNumber with total count
-      this.pagination.rowsNumber = parseInt(data['@odata.count'])
-
-      // Update the local pagination object
-      this.pagination.page = page
-      this.pagination.rowsPerPage = rowsPerPage
-      this.pagination.sortBy = sortBy
-      this.pagination.descending = descending
-
-      this.loading = false
-    },
-
-    async fetchDataFromServer ({ startRow, count, search, sortBy, descending }) {
-      const params = new URLSearchParams({
-        $skip: startRow,
-        $top: count,
-        $count: true
-      })
-
-      if (sortBy) {
-        params.append('$orderBy', `${sortBy} ${descending ? 'desc' : 'asc'}`)
-      }
-
-      if (search?.fields?.length > 0 && search?.term) {
-        const filterQuery = search.fields
-          .map(field => `contains(${field}, '${search.term}')`)
-          .join(' or ')
-
-        params.append('$filter', filterQuery)
-      }
-
-      const url = `/api/Department?${params.toString()}`
-
-      const response = await axios(url)
-
-      return response.data
-    },
-
-    async pushDataToServer (data, isUpdating) {
-      return axios({
-        url: `/api/Department/${isUpdating ? data.Id : ''}`,
-        method: isUpdating ? 'PUT' : 'POST',
-        data
-      })
-    },
-
-    async saveForm () {
-      this.formLoading = true
-      await this.pushDataToServer(this.editedItem, this.isUpdating)
-
-      this.formLoading = false
-      this.closeForm()
-      this.resetForm()
-
-      // Trigger table for update
-      this.onRequest({
-        pagination: this.pagination,
-        filter: this.filter
-      })
-    },
-
-    closeForm () {
-      this.dialog = false
-    },
-
-    resetForm () {
-      this.isUpdating = false
-      this.editedItem = Object.assign({}, this.defaultItem)
-    },
-
-    async editItem ({ row: item }) {
-      this.isUpdating = true
-      this.editedItem = Object.assign({}, item)
-      this.dialog = true
-    },
-
-    async deleteItem ({ row: item }) {
+    const deleteItem = async ({ row: item }) => {
       if (!confirm('Are you sure you want to delete this item?')) return
 
-      this.loading = true
+      loading.value = true
       await axios.delete(`/api/Department/${item.Id}`)
-      this.loading = false
+      loading.value = false
 
-      // Trigger table for update
-      this.onRequest({
-        pagination: this.pagination,
-        filter: this.filter
+      refreshTable()
+    }
+
+    onMounted(() => {
+      refreshTable()
+    })
+
+    const { items, loading, onRequest } = useServerSideProcessedTable(
+      pagination,
+      async ({ startRow, count, filter, sortBy, descending }) => {
+        const search = {
+          term: filter,
+          fields: searchableFields.value
+        }
+
+        try {
+          const data = await fetchDataFromServer({ startRow, count, search, sortBy, descending })
+
+          return {
+            items: data.value,
+            count: data['@odata.count']
+          }
+        } catch (error) {
+          context.root.$q.notify({
+            type: 'negative',
+            message: 'An error occured while fetching data from the server',
+            caption: error.message
+          })
+
+          throw error
+        }
+      }
+    )
+
+    const refreshTable = () => {
+      onRequest({
+        pagination,
+        filter: filter.value
       })
+    }
+
+    return {
+      // Form (create/edit) related
+      formLoading,
+      editedItem,
+      isFormOpen,
+      ...formStuff,
+      // Delete related
+      deleteItem,
+      // Table related
+      filter,
+      loading,
+      items,
+      rowsPerPageOptions,
+      pagination: toRefs(pagination),
+      columns,
+      onRequest
     }
   }
 }
