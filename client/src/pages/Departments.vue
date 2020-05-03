@@ -139,7 +139,7 @@ export default {
 
     const saveForm = async () => {
       formLoading.value = true
-      await pushDataToServer(editedItem, isUpdating)
+      await pushDataToServer(editedItem, isUpdating.value)
 
       formLoading.value = false
       closeForm()
