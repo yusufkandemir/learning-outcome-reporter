@@ -118,9 +118,7 @@ export default {
     const defaultItem = {
       Name: ''
     }
-    const editedItem = reactive({
-      Name: ''
-    })
+    const editedItem = reactive({ ...defaultItem })
 
     const closeForm = () => {
       dialog.value = false
