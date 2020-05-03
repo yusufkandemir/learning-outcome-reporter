@@ -127,10 +127,7 @@ export default {
       async (data, isUpdating) => {
         await pushDataToServer(data, isUpdating)
 
-        onRequest({
-          pagination,
-          filter: filter.value
-        })
+        refreshTable()
       }
     )
 
@@ -169,18 +166,11 @@ export default {
       await axios.delete(`/api/Department/${item.Id}`)
       loading.value = false
 
-      // Trigger table for update
-      onRequest({
-        pagination,
-        filter: filter.value
-      })
+      refreshTable()
     }
 
     onMounted(() => {
-      onRequest({
-        pagination,
-        filter: filter.value
-      })
+      refreshTable()
     })
 
     const onRequest = async ({ pagination: newPagination, filter: newFilter }) => {
@@ -226,6 +216,13 @@ export default {
       pagination.descending = descending
 
       loading.value = false
+    }
+
+    const refreshTable = () => {
+      onRequest({
+        pagination,
+        filter: filter.value
+      })
     }
 
     return {
