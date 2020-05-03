@@ -111,44 +111,12 @@ async function pushDataToServer (data, isUpdating) {
 export default {
   name: 'DepartmentsPage',
   setup (props, context) {
-    const formLoading = ref(false)
-    const isUpdating = ref(false)
-    const dialog = ref(false)
-
-    const defaultItem = {
-      Id: 0,
-      Name: ''
-    }
-    const editedItem = reactive({ ...defaultItem })
-
-    const closeForm = () => {
-      dialog.value = false
-    }
-
-    const resetForm = () => {
-      isUpdating.value = false
-      Object.assign(editedItem, defaultItem)
-    }
-
-    const editItem = ({ row: item }) => {
-      isUpdating.value = true
-      Object.assign(editedItem, {}, item)
-      dialog.value = true
-    }
-
-    const saveForm = async () => {
-      formLoading.value = true
-      await pushDataToServer(editedItem, isUpdating.value)
-
-      formLoading.value = false
-      closeForm()
-      resetForm()
-
+    const { loading: formLoading, value: editedItem, ...formStuff } = useForm(() => {
       onRequest({
         pagination,
         filter: filter.value
       })
-    }
+    })
 
     const filter = ref('')
     const loading = ref(false)
@@ -247,13 +215,8 @@ export default {
     return {
       // Form (create/edit) related
       formLoading,
-      isUpdating,
-      dialog,
       editedItem,
-      saveForm,
-      closeForm,
-      resetForm,
-      editItem,
+      ...formStuff,
       // Delete related
       deleteItem,
       // Table related
@@ -266,6 +229,55 @@ export default {
       searchableFields,
       onRequest
     }
+  }
+}
+
+function useForm (onSave) {
+  const loading = ref(false)
+  const isUpdating = ref(false)
+  const dialog = ref(false)
+
+  const defaultValue = {
+    Id: 0,
+    Name: ''
+  }
+  const value = reactive({ ...defaultValue })
+
+  const closeForm = () => {
+    dialog.value = false
+  }
+
+  const resetForm = () => {
+    isUpdating.value = false
+    Object.assign(value, defaultValue)
+  }
+
+  const editItem = ({ row: item }) => {
+    isUpdating.value = true
+    Object.assign(value, {}, item)
+    dialog.value = true
+  }
+
+  const saveForm = async () => {
+    loading.value = true
+    await pushDataToServer(value, isUpdating.value)
+
+    loading.value = false
+    closeForm()
+    resetForm()
+
+    onSave()
+  }
+
+  return {
+    loading,
+    isUpdating,
+    dialog,
+    value,
+    saveForm,
+    closeForm,
+    resetForm,
+    editItem
   }
 }
 </script>
