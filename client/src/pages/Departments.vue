@@ -176,7 +176,22 @@ export default {
         .map(column => column.field)
     })
 
+    const deleteItem = async ({ row: item }) => {
+      if (!confirm('Are you sure you want to delete this item?')) return
+
+      loading.value = true
+      await axios.delete(`/api/Department/${item.Id}`)
+      loading.value = false
+
+      // Trigger table for update
+      onRequest({
+        pagination,
+        filter: filter.value
+      })
+    }
+
     return {
+      // Form (create/edit) related
       formLoading,
       isUpdating,
       dialog,
@@ -185,6 +200,9 @@ export default {
       closeForm,
       resetForm,
       editItem,
+      // Delete related
+      deleteItem,
+      // Table related
       filter,
       loading,
       items,
@@ -244,20 +262,6 @@ export default {
       this.pagination.descending = descending
 
       this.loading = false
-    },
-
-    async deleteItem ({ row: item }) {
-      if (!confirm('Are you sure you want to delete this item?')) return
-
-      this.loading = true
-      await axios.delete(`/api/Department/${item.Id}`)
-      this.loading = false
-
-      // Trigger table for update
-      this.onRequest({
-        pagination: this.pagination,
-        filter: this.filter
-      })
     }
   }
 }
