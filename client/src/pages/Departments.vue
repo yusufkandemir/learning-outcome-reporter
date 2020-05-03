@@ -111,7 +111,9 @@ async function pushDataToServer (data, isUpdating) {
 export default {
   name: 'DepartmentsPage',
   setup (props, context) {
-    const { loading: formLoading, value: editedItem, ...formStuff } = useForm(() => {
+    const { loading: formLoading, value: editedItem, ...formStuff } = useForm(async (data, isUpdating) => {
+      await pushDataToServer(data, isUpdating)
+
       onRequest({
         pagination,
         filter: filter.value
@@ -260,13 +262,12 @@ function useForm (onSave) {
 
   const saveForm = async () => {
     loading.value = true
-    await pushDataToServer(value, isUpdating.value)
+
+    await onSave(value, isUpdating.value)
 
     loading.value = false
     closeForm()
     resetForm()
-
-    onSave()
   }
 
   return {
