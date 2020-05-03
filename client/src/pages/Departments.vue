@@ -132,8 +132,6 @@ export default {
     )
 
     const filter = ref('')
-    const loading = ref(false)
-    const items = ref([])
     const rowsPerPageOptions = [12, 24, 36, 48]
     const pagination = reactive({
       page: 1,
@@ -173,50 +171,27 @@ export default {
       refreshTable()
     })
 
-    const onRequest = async ({ pagination: newPagination, filter: newFilter }) => {
-      loading.value = true
+    const { items, loading, onRequest } = useServerSideProcessedTable(
+      pagination,
+      async ({ startRow, count, filter, sortBy, descending }) => {
+        const search = {
+          term: filter,
+          fields: searchableFields.value
+        }
 
-      const { page, rowsPerPage, rowsNumber, sortBy, descending } = newPagination
+        try {
+          return await fetchDataFromServer({ startRow, count, search, sortBy, descending })
+        } catch (error) {
+          context.root.$q.notify({
+            type: 'negative',
+            message: 'An error occured while fetching data from the server',
+            caption: error.message
+          })
 
-      // Get all rows if 'All' (0) is selected
-      const fetchCount = rowsPerPage === 0 ? rowsNumber : rowsPerPage
-
-      // Calculate starting row of data
-      const startRow = (page - 1) * rowsPerPage
-
-      const search = {
-        term: newFilter,
-        fields: searchableFields.value
+          throw error
+        }
       }
-
-      let data
-      try {
-        data = await fetchDataFromServer({ startRow, count: fetchCount, search, sortBy, descending })
-      } catch (error) {
-        loading.value = false
-        context.root.$q.notify({
-          type: 'negative',
-          message: 'An error occured while fetching data from the server',
-          caption: error.message
-        })
-
-        return
-      }
-
-      // Clear out existing data and add new
-      items.value.splice(0, items.value.length, ...data.value)
-
-      // Update rowsNumber with total count
-      pagination.rowsNumber = parseInt(data['@odata.count'])
-
-      // Update the local pagination object
-      pagination.page = page
-      pagination.rowsPerPage = rowsPerPage
-      pagination.sortBy = sortBy
-      pagination.descending = descending
-
-      loading.value = false
-    }
+    )
 
     const refreshTable = () => {
       onRequest({
@@ -287,6 +262,52 @@ function useForm (defaultValue, onSave) {
     closeForm,
     resetForm,
     editItem
+  }
+}
+
+function useServerSideProcessedTable (pagination, fetchData) {
+  const loading = ref(false)
+  const items = ref([])
+
+  const onRequest = async ({ pagination: newPagination, filter }) => {
+    loading.value = true
+
+    const { page, rowsPerPage, rowsNumber, sortBy, descending } = newPagination
+
+    // Get all rows if 'All' (0) is selected
+    const fetchCount = rowsPerPage === 0 ? rowsNumber : rowsPerPage
+
+    // Calculate starting row of data
+    const startRow = (page - 1) * rowsPerPage
+
+    let data
+    try {
+      data = await fetchData({ startRow, count: fetchCount, filter, sortBy, descending })
+    } catch (error) {
+      loading.value = false
+
+      return
+    }
+
+    // Clear out existing data and add new
+    items.value.splice(0, items.value.length, ...data.value)
+
+    // Update rowsNumber with total count
+    pagination.rowsNumber = parseInt(data['@odata.count'])
+
+    // Update the local pagination object
+    pagination.page = page
+    pagination.rowsPerPage = rowsPerPage
+    pagination.sortBy = sortBy
+    pagination.descending = descending
+
+    loading.value = false
+  }
+
+  return {
+    items,
+    loading,
+    onRequest
   }
 }
 </script>
