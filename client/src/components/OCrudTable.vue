@@ -42,7 +42,7 @@
           <q-btn dense round flat color="grey" :to="entity.route(props.row.Id)" icon="mdi-pencil">
             <q-tooltip>Edit</q-tooltip>
           </q-btn>
-          <q-btn dense round flat color="grey" @click="deleteItem(props)" icon="mdi-delete">
+          <q-btn dense round flat color="grey" @click="deleteItem(props.row)" icon="mdi-delete">
             <q-tooltip>Delete</q-tooltip>
           </q-btn>
         </q-td>
@@ -110,7 +110,7 @@ export default {
         .map(column => column.field)
     })
 
-    const deleteItem = async ({ row: item }) => {
+    const deleteItem = async item => {
       if (!confirm('Are you sure you want to delete this item?')) return
 
       loading.value = true
