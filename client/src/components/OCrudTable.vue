@@ -108,10 +108,6 @@ export default {
   },
   inheritAttrs: false,
   setup (props, context) {
-    const defaultValue = {
-      Id: 0,
-      Name: ''
-    }
     const isFormOpen = ref(false)
 
     const onSave = async (data, isUpdating) => {
@@ -213,7 +209,7 @@ export default {
       // Form (create/edit) related
       onSave,
       isFormOpen,
-      defaultValue,
+      defaultValue: props.entity.defaultValue(),
       // Delete related
       deleteItem,
       // Table related

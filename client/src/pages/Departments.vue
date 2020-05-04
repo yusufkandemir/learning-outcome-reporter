@@ -50,7 +50,13 @@ export default {
       name: 'Department',
       displayName: (plural = false) => `Department${plural ? 's' : ''}`,
       route: (key = '') => `/departments/${key}`,
-      apiRoute: (key = '') => `Department/${key}`
+      apiRoute: (key = '') => `Department/${key}`,
+      defaultValue () {
+        return {
+          Id: 0,
+          Name: ''
+        }
+      }
     }
 
     const actionConfig = {
