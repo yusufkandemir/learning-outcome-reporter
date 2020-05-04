@@ -19,10 +19,11 @@
         </q-input>
 
         <q-btn
+          v-if="actionConfig.create.enabled"
           class="q-ml-md"
           color="primary"
-          icon="mdi-domain-plus"
-          :label="`New ${entity.displayName()}`"
+          :icon="actionConfig.create.icon"
+          :label="actionConfig.create.label"
           @click="isFormOpen = true"
         />
       </template>
@@ -30,20 +31,37 @@
       <template v-slot:body-cell-actions="props">
         <q-td :props="props">
           <q-btn
+            v-if="actionConfig.quickEdit.enabled"
             dense
             round
             flat
             color="grey"
             @click="$refs.form.editItem(props.row)"
-            icon="mdi-playlist-edit"
+            :icon="actionConfig.quickEdit.icon"
           >
-            <q-tooltip>Quick Edit</q-tooltip>
+            <q-tooltip>{{ actionConfig.quickEdit.label }}</q-tooltip>
           </q-btn>
-          <q-btn dense round flat color="grey" :to="entity.route(props.row.Id)" icon="mdi-pencil">
-            <q-tooltip>Edit</q-tooltip>
+          <q-btn
+            v-if="actionConfig.edit.enabled"
+            dense
+            round
+            flat
+            color="grey"
+            :to="entity.route(props.row.Id)"
+            :icon="actionConfig.edit.icon"
+          >
+            <q-tooltip>{{ actionConfig.edit.label }}</q-tooltip>
           </q-btn>
-          <q-btn dense round flat color="grey" @click="deleteItem(props.row)" icon="mdi-delete">
-            <q-tooltip>Delete</q-tooltip>
+          <q-btn
+            v-if="actionConfig.delete.enabled"
+            dense
+            round
+            flat
+            color="grey"
+            @click="deleteItem(props.row)"
+            :icon="actionConfig.delete.icon"
+          >
+            <q-tooltip>{{ actionConfig.delete.label }}</q-tooltip>
           </q-btn>
         </q-td>
       </template>
@@ -68,6 +86,7 @@
 
 <script>
 import axios from 'axios'
+import { extend } from 'quasar'
 import { ref, computed, onMounted, watch } from '@vue/composition-api'
 
 import OPopupForm from '../components/OPopupForm'
@@ -84,7 +103,8 @@ export default {
     entity: {
       type: Object,
       required: true
-    }
+    },
+    actions: Object
   },
   inheritAttrs: false,
   setup (props, context) {
@@ -100,6 +120,31 @@ export default {
 
       refreshTable()
     }
+
+    const actionsDefaults = {
+      create: {
+        enabled: true,
+        icon: 'mdi-plus',
+        label: `New ${props.entity.displayName()}`
+      },
+      quickEdit: {
+        enabled: true,
+        icon: 'mdi-playlist-edit',
+        label: 'Quick Edit'
+      },
+      edit: {
+        enabled: true,
+        icon: 'mdi-pencil',
+        label: 'Edit'
+      },
+      delete: {
+        enabled: true,
+        icon: 'mdi-delete',
+        label: 'Delete'
+      }
+    }
+
+    const actionConfig = computed(() => extend(true, actionsDefaults, props.actions))
 
     const filter = ref('')
     const rowsPerPageOptions = [12, 24, 36, 48]
@@ -176,7 +221,8 @@ export default {
       loading,
       items,
       rowsPerPageOptions,
-      onRequest
+      onRequest,
+      actionConfig
     }
   }
 }

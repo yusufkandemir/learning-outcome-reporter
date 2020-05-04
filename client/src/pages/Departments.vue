@@ -1,7 +1,13 @@
 <template>
   <q-page class="flex flex-center" padding>
     <div class="q-my-lg">
-      <o-crud-table :entity="entity" :data="items" :columns="columns" :pagination="pagination">
+      <o-crud-table
+        :entity="entity"
+        :data="items"
+        :columns="columns"
+        :pagination="pagination"
+        :actions="actionConfig"
+      >
         <template v-slot:form="{ item }">
           <q-input v-model="item.Name" label="Name"></q-input>
         </template>
@@ -47,11 +53,18 @@ export default {
       apiRoute: (key = '') => `Department/${key}`
     }
 
+    const actionConfig = {
+      create: {
+        icon: 'mdi-domain-plus'
+      }
+    }
+
     return {
       items,
       columns,
       pagination,
-      entity
+      entity,
+      actionConfig
     }
   }
 }
