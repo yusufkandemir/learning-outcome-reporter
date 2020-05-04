@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-export async function fetchDataFromServer (entity, { startRow, count, search, sortBy, descending }) {
+export async function fetchDataFromServer (path, { startRow, count, search, sortBy, descending }) {
   const params = new URLSearchParams({
     $skip: startRow,
     $top: count,
@@ -19,16 +19,16 @@ export async function fetchDataFromServer (entity, { startRow, count, search, so
     params.append('$filter', filterQuery)
   }
 
-  const url = `/api/${entity}?${params.toString()}`
+  const url = `/api/${path}?${params.toString()}`
 
   const response = await axios(url)
 
   return response.data
 }
 
-export async function pushDataToServer (entity, data, isUpdating) {
+export async function pushDataToServer (path, data, isUpdating) {
   return axios({
-    url: `/api/${entity}/${isUpdating ? data.Id : ''}`,
+    url: `/api/${path}`,
     method: isUpdating ? 'PUT' : 'POST',
     data
   })

@@ -43,7 +43,8 @@ export default {
       key: 'Id',
       name: 'Department',
       displayName: (plural = false) => `Department${plural ? 's' : ''}`,
-      route: key => `/departments/${key}`
+      route: (key = '') => `/departments/${key}`,
+      apiRoute: (key = '') => `Department/${key}`
     }
 
     return {

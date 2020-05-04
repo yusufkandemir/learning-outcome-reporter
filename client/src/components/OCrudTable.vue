@@ -95,7 +95,8 @@ export default {
     const isFormOpen = ref(false)
 
     const onSave = async (data, isUpdating) => {
-      await pushDataToServer(props.entity.name, data, isUpdating)
+      const path = props.entity.apiRoute(isUpdating ? data[props.entity.key] : '')
+      await pushDataToServer(path, data, isUpdating)
 
       refreshTable()
     }
@@ -132,7 +133,7 @@ export default {
         }
 
         try {
-          const data = await fetchDataFromServer(props.entity.name, { startRow, count, search, sortBy, descending })
+          const data = await fetchDataFromServer(props.entity.apiRoute(), { startRow, count, search, sortBy, descending })
 
           return {
             items: data.value,
