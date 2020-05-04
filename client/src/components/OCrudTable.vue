@@ -108,6 +108,8 @@ export default {
   },
   inheritAttrs: false,
   setup (props, context) {
+    const { items, loading, filter, onRequest, refreshTable, rowsPerPageOptions } = useTable(props, context)
+
     const isFormOpen = ref(false)
 
     const onSave = async (data, isUpdating) => {
@@ -118,15 +120,6 @@ export default {
     }
 
     const { actionConfig } = useAction(props)
-
-    const filter = ref('')
-    const rowsPerPageOptions = [12, 24, 36, 48]
-
-    const searchableFields = computed(() => {
-      return context.attrs.columns
-        .filter(column => column.searchable)
-        .map(column => column.field)
-    })
 
     const deleteItem = async item => {
       if (!confirm('Are you sure you want to delete this item?')) return
@@ -141,45 +134,6 @@ export default {
 
     onMounted(() => {
       refreshTable()
-    })
-
-    const { items, loading, onRequest } = useServerSideProcessedTable(
-      context.attrs.pagination,
-      async ({ startRow, count, filter, sortBy, descending }) => {
-        const search = {
-          term: filter,
-          fields: searchableFields.value
-        }
-
-        try {
-          const data = await fetchDataFromServer(props.entity.apiRoute(), { startRow, count, search, sortBy, descending })
-
-          return {
-            items: data.value,
-            count: data['@odata.count']
-          }
-        } catch (error) {
-          context.root.$q.notify({
-            type: 'negative',
-            message: 'An error occured while fetching data from the server',
-            caption: error.message
-          })
-
-          throw error
-        }
-      }
-    )
-
-    const refreshTable = () => {
-      onRequest({
-        pagination: context.attrs.pagination,
-        filter: filter.value
-      })
-    }
-
-    watch(items, value => {
-      const data = context.attrs.data
-      data.splice(0, data.length, ...value)
     })
 
     return {
@@ -228,6 +182,73 @@ function useAction (props) {
 
   return {
     actionConfig
+  }
+}
+
+function useTable (props, context) {
+  const filter = ref('')
+  const rowsPerPageOptions = [12, 24, 36, 48]
+
+  const searchableFields = computed(() => {
+    return context.attrs.columns
+      .filter(column => column.searchable)
+      .map(column => column.field)
+  })
+
+  const onSave = async (data, isUpdating) => {
+    const path = props.entity.apiRoute(isUpdating ? data[props.entity.key] : '')
+    await pushDataToServer(path, data, isUpdating)
+
+    refreshTable()
+  }
+
+  const { items, loading, onRequest } = useServerSideProcessedTable(
+    context.attrs.pagination,
+    async ({ startRow, count, filter, sortBy, descending }) => {
+      const search = {
+        term: filter,
+        fields: searchableFields.value
+      }
+
+      try {
+        const data = await fetchDataFromServer(props.entity.apiRoute(), { startRow, count, search, sortBy, descending })
+
+        return {
+          items: data.value,
+          count: data['@odata.count']
+        }
+      } catch (error) {
+        context.root.$q.notify({
+          type: 'negative',
+          message: 'An error occured while fetching data from the server',
+          caption: error.message
+        })
+
+        throw error
+      }
+    }
+  )
+
+  watch(items, value => {
+    const data = context.attrs.data
+    data.splice(0, data.length, ...value)
+  })
+
+  const refreshTable = () => {
+    onRequest({
+      pagination: context.attrs.pagination,
+      filter: filter.value
+    })
+  }
+
+  return {
+    filter,
+    loading,
+    items,
+    onSave,
+    onRequest,
+    refreshTable,
+    rowsPerPageOptions
   }
 }
 </script>
