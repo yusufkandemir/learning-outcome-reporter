@@ -1,5 +1,5 @@
 <template>
-  <div class="q-my-lg">
+  <div>
     <q-table
       :title="entity.displayName(true)"
       :row-key="entity.key"
