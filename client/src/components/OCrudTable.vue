@@ -110,6 +110,8 @@ export default {
   setup (props, context) {
     const { items, loading, filter, onRequest, refreshTable, rowsPerPageOptions } = useTable(props, context)
 
+    const { actionConfig } = useAction(props)
+
     const isFormOpen = ref(false)
 
     const onSave = async (data, isUpdating) => {
@@ -118,8 +120,6 @@ export default {
 
       refreshTable()
     }
-
-    const { actionConfig } = useAction(props)
 
     const deleteItem = async item => {
       if (!confirm('Are you sure you want to delete this item?')) return
@@ -144,11 +144,12 @@ export default {
       // Delete related
       deleteItem,
       // Table related
+      items,
       filter,
       loading,
-      items,
-      rowsPerPageOptions,
       onRequest,
+      rowsPerPageOptions,
+      // Other
       actionConfig
     }
   }
@@ -195,13 +196,6 @@ function useTable (props, context) {
       .map(column => column.field)
   })
 
-  const onSave = async (data, isUpdating) => {
-    const path = props.entity.apiRoute(isUpdating ? data[props.entity.key] : '')
-    await pushDataToServer(path, data, isUpdating)
-
-    refreshTable()
-  }
-
   const { items, loading, onRequest } = useServerSideProcessedTable(
     context.attrs.pagination,
     async ({ startRow, count, filter, sortBy, descending }) => {
@@ -245,7 +239,6 @@ function useTable (props, context) {
     filter,
     loading,
     items,
-    onSave,
     onRequest,
     refreshTable,
     rowsPerPageOptions
