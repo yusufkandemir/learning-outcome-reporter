@@ -114,7 +114,8 @@ export default {
       if (!confirm('Are you sure you want to delete this item?')) return
 
       loading.value = true
-      await axios.delete(`/api/${props.entity.name}/${item.Id}`)
+      const path = props.entity.apiRoute(item[props.entity.key])
+      await axios.delete(`/api/${path}`)
       loading.value = false
 
       refreshTable()
