@@ -117,30 +117,7 @@ export default {
       refreshTable()
     }
 
-    const actionsDefaults = {
-      create: {
-        enabled: true,
-        icon: 'mdi-plus',
-        label: `New ${props.entity.displayName()}`
-      },
-      quickEdit: {
-        enabled: true,
-        icon: 'mdi-playlist-edit',
-        label: 'Quick Edit'
-      },
-      edit: {
-        enabled: true,
-        icon: 'mdi-pencil',
-        label: 'Edit'
-      },
-      delete: {
-        enabled: true,
-        icon: 'mdi-delete',
-        label: 'Delete'
-      }
-    }
-
-    const actionConfig = computed(() => extend(true, actionsDefaults, props.actions))
+    const { actionConfig } = useAction(props)
 
     const filter = ref('')
     const rowsPerPageOptions = [12, 24, 36, 48]
@@ -220,6 +197,37 @@ export default {
       onRequest,
       actionConfig
     }
+  }
+}
+
+function useAction (props) {
+  const actionsDefaults = {
+    create: {
+      enabled: true,
+      icon: 'mdi-plus',
+      label: `New ${props.entity.displayName()}`
+    },
+    quickEdit: {
+      enabled: true,
+      icon: 'mdi-playlist-edit',
+      label: 'Quick Edit'
+    },
+    edit: {
+      enabled: true,
+      icon: 'mdi-pencil',
+      label: 'Edit'
+    },
+    delete: {
+      enabled: true,
+      icon: 'mdi-delete',
+      label: 'Delete'
+    }
+  }
+
+  const actionConfig = computed(() => extend(true, actionsDefaults, props.actions))
+
+  return {
+    actionConfig
   }
 }
 </script>
