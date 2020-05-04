@@ -1,8 +1,8 @@
 <template>
   <div class="q-my-lg">
     <q-table
-      :title="`${entity}s`"
-      row-key="Id"
+      :title="entity.displayName(true)"
+      :row-key="entity.key"
       binary-state-sort
       :rows-per-page-options="rowsPerPageOptions"
       :loading="loading"
@@ -22,7 +22,7 @@
           class="q-ml-md"
           color="primary"
           icon="mdi-domain-plus"
-          :label="`New ${entity}`"
+          :label="`New ${entity.displayName()}`"
           @click="isFormOpen = true"
         />
       </template>
@@ -39,14 +39,7 @@
           >
             <q-tooltip>Quick Edit</q-tooltip>
           </q-btn>
-          <q-btn
-            dense
-            round
-            flat
-            color="grey"
-            :to="`/departments/${props.row.Id}`"
-            icon="mdi-pencil"
-          >
+          <q-btn dense round flat color="grey" :to="entity.route(props.row.Id)" icon="mdi-pencil">
             <q-tooltip>Edit</q-tooltip>
           </q-btn>
           <q-btn dense round flat color="grey" @click="deleteItem(props)" icon="mdi-delete">
@@ -63,7 +56,7 @@
     <o-popup-form
       ref="form"
       v-model="isFormOpen"
-      :title="entity"
+      :title="entity.displayName()"
       :default-value="defaultValue"
       @save="onSave"
       v-slot:default="{ value }"
@@ -89,7 +82,7 @@ export default {
   },
   props: {
     entity: {
-      type: String,
+      type: Object,
       required: true
     }
   },
@@ -102,7 +95,7 @@ export default {
     const isFormOpen = ref(false)
 
     const onSave = async (data, isUpdating) => {
-      await pushDataToServer(data, isUpdating)
+      await pushDataToServer(props.entity.name, data, isUpdating)
 
       refreshTable()
     }
@@ -120,7 +113,7 @@ export default {
       if (!confirm('Are you sure you want to delete this item?')) return
 
       loading.value = true
-      await axios.delete(`/api/Department/${item.Id}`)
+      await axios.delete(`/api/${props.entity.name}/${item.Id}`)
       loading.value = false
 
       refreshTable()
@@ -139,7 +132,7 @@ export default {
         }
 
         try {
-          const data = await fetchDataFromServer({ startRow, count, search, sortBy, descending })
+          const data = await fetchDataFromServer(props.entity.name, { startRow, count, search, sortBy, descending })
 
           return {
             items: data.value,

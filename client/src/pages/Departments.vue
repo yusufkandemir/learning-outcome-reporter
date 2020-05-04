@@ -1,7 +1,7 @@
 <template>
   <q-page class="flex flex-center" padding>
     <div class="q-my-lg">
-      <o-crud-table entity="Deparment" :columns="columns" :data="items" :pagination="pagination">
+      <o-crud-table :entity="entity" :data="items" :columns="columns" :pagination="pagination">
         <template v-slot:form="{ item }">
           <q-input v-model="item.Name" label="Name"></q-input>
         </template>
@@ -39,11 +39,18 @@ export default {
       rowsPerPage: context.root.$q.screen.xs ? 12 : 24,
       rowsNumber: 0
     })
+    const entity = {
+      key: 'Id',
+      name: 'Department',
+      displayName: (plural = false) => `Department${plural ? 's' : ''}`,
+      route: key => `/departments/${key}`
+    }
 
     return {
       items,
       columns,
-      pagination
+      pagination,
+      entity
     }
   }
 }
