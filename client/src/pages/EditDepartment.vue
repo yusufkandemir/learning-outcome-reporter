@@ -84,7 +84,7 @@ export default {
       defaultValue () {
         return {
           Id: 0,
-          Code: 0,
+          Code: 1,
           Description: ''
         }
       }
