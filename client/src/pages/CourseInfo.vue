@@ -1,13 +1,7 @@
 <template>
   <q-page class="flex flex-center" padding>
     <div class="q-my-lg">
-      <o-crud-table
-        :entity="entity"
-        :data="items"
-        :columns="columns"
-        :pagination="pagination"
-        :actions="actionConfig"
-      >
+      <o-crud-table :entity="entity" :data="items" :columns="columns" :pagination="pagination">
         <template v-slot:form="{ item }">
           <q-input v-model.number="item.DepartmentId" type="number" min="1" label="Department Id"></q-input>
           <q-input v-model="item.Name" label="Name"></q-input>
