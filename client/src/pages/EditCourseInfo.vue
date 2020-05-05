@@ -34,6 +34,19 @@
     </div>
     <o-crud-table
       class="q-my-lg col-md-12 col-lg-8"
+      :entity="courseEntity"
+      :data="courseItems"
+      :columns="courseColumns"
+      :pagination="coursePagination"
+    >
+      <template v-slot:form="{ item }">
+        <q-select v-model="item.Semester" :options="semesters" label="Semester" />
+        <q-input v-model.number="item.Year" label="Year" type="number"></q-input>
+      </template>
+    </o-crud-table>
+
+    <o-crud-table
+      class="q-my-lg col-md-12 col-lg-8"
       :entity="entity"
       :data="items"
       :columns="columns"
@@ -87,7 +100,6 @@ export default {
       rowsPerPage: context.root.$q.screen.xs ? 12 : 24,
       rowsNumber: 0
     })
-
     const courseInfoId = context.root.$route.params.id
 
     const entity = {
@@ -114,6 +126,50 @@ export default {
       }
     }
 
+    const semesters = ['Fall', 'Spring', 'Summer']
+
+    const courseItems = ref([])
+
+    const courseColumns = ref([
+      {
+        name: 'semester',
+        label: 'Semester',
+        field: 'Semester',
+        sortable: true,
+        searchable: true
+      },
+      {
+        name: 'year',
+        label: 'Year',
+        field: 'Year',
+        sortable: true,
+        searchable: true
+      },
+      { name: 'actions', label: 'Actions', align: 'right' }
+    ])
+    const coursePagination = reactive({
+      page: 1,
+      sortBy: 'year',
+      descending: true,
+      rowsPerPage: context.root.$q.screen.xs ? 12 : 24,
+      rowsNumber: 0
+    })
+
+    const courseEntity = {
+      key: 'Id',
+      name: 'Course',
+      displayName: (plural = false) => `Course${plural ? 's' : ''}`,
+      route: (key = '') => `/course_info/${courseInfoId}/course/${key}`,
+      apiRoute: (key = '') => `CourseInfo/${courseInfoId}/Courses/${key}`,
+      defaultValue () {
+        return {
+          Id: 0,
+          Semester: '',
+          Year: new Date().getFullYear()
+        }
+      }
+    }
+
     const { loading, onUpdate, courseInfo } = useUpdateForm(courseInfoId)
 
     return {
@@ -123,9 +179,15 @@ export default {
       entity,
       actionConfig,
 
+      courseEntity,
+      courseItems,
+      courseColumns,
+      coursePagination,
+
       loading,
       onUpdate,
-      courseInfo
+      courseInfo,
+      semesters
     }
   }
 }
