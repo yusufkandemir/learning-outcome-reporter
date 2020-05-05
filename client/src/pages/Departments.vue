@@ -17,11 +17,11 @@
 </template>
 
 <script>
-import { ref, reactive } from '@vue/composition-api'
+import { defineComponent, ref, reactive } from '@vue/composition-api'
 
 import OCrudTable from '../components/OCrudTable'
 
-export default {
+export default defineComponent({
   name: 'DepartmentsPage',
   components: {
     OCrudTable
@@ -73,5 +73,5 @@ export default {
       actionConfig
     }
   }
-}
+})
 </script>

@@ -87,14 +87,14 @@
 <script>
 import axios from 'axios'
 import { extend } from 'quasar'
-import { ref, computed, onMounted, watch } from '@vue/composition-api'
+import { defineComponent, ref, computed, onMounted, watch } from '@vue/composition-api'
 
 import OPopupForm from '../components/OPopupForm'
 import { useServerSideProcessedTable } from '../composition/useServerSideProcessedTable'
 
 import { fetchDataFromServer, pushDataToServer } from '../services/ApiService'
 
-export default {
+export default defineComponent({
   name: 'OCrudTable',
   components: {
     OPopupForm
@@ -153,7 +153,7 @@ export default {
       actionConfig
     }
   }
-}
+})
 
 function useAction (props) {
   const actionsDefaults = {

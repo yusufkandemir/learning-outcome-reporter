@@ -67,14 +67,14 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted } from '@vue/composition-api'
+import { defineComponent, ref, reactive, onMounted } from '@vue/composition-api'
 import axios from 'axios'
 import { Notify } from 'quasar'
 
 import OCrudTable from '../components/OCrudTable'
 import { pushDataToServer } from '../services/ApiService'
 
-export default {
+export default defineComponent({
   name: 'EditCourseInfoPage',
   components: {
     OCrudTable
@@ -195,7 +195,7 @@ export default {
       semesters
     }
   }
-}
+})
 
 function useUpdateForm (courseInfoId) {
   const loading = ref(false)

@@ -18,10 +18,10 @@
 </template>
 
 <script>
-import { watch } from '@vue/composition-api'
+import { defineComponent, watch } from '@vue/composition-api'
 import { useForm } from '../composition/useForm'
 
-export default {
+export default defineComponent({
   name: 'OPopupForm',
   props: {
     value: Boolean,
@@ -58,5 +58,5 @@ export default {
       editItem
     }
   }
-}
+})
 </script>
