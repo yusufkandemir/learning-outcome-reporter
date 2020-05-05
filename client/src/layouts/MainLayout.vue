@@ -36,7 +36,7 @@
             <q-item-section>Dashboard</q-item-section>
           </q-item>
 
-          <q-item to="/departments" exact clickable v-ripple>
+          <q-item to="/departments" clickable v-ripple>
             <q-item-section avatar>
               <q-icon name="mdi-domain"></q-icon>
             </q-item-section>
