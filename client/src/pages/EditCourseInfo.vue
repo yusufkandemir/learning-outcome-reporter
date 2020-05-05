@@ -1,7 +1,7 @@
 <template>
   <q-page class="flex row justify-center content-start items-center q-col-gutter-lg" padding>
-    <div class="row justify-center col-md-12 col-lg-4">
-      <div class="col-12">
+    <div class="row justify-center col-12">
+      <div class="col-12 col-md-8 col-lg-4">
         <q-card class="q-pa-sm">
           <q-card-section>
             <span class="text-h5">Edit Course Information</span>
@@ -32,32 +32,37 @@
         </q-card>
       </div>
     </div>
-    <o-crud-table
-      class="q-my-lg col-md-12 col-lg-8"
-      :entity="courseEntity"
-      :data="courseItems"
-      :columns="courseColumns"
-      :pagination="coursePagination"
-    >
-      <template v-slot:form="{ item }">
-        <q-select v-model="item.Semester" :options="semesters" label="Semester" />
-        <q-input v-model.number="item.Year" label="Year" type="number"></q-input>
-      </template>
-    </o-crud-table>
 
-    <o-crud-table
-      class="q-my-lg col-md-12 col-lg-8"
-      :entity="entity"
-      :data="items"
-      :columns="columns"
-      :pagination="pagination"
-      :actions="actionConfig"
-    >
-      <template v-slot:form="{ item }">
-        <q-input v-model.number="item.Code" label="Code" type="number" min="1" max="255"></q-input>
-        <q-input v-model="item.Description" label="Description" autogrow></q-input>
-      </template>
-    </o-crud-table>
+    <div class="row justify-center col-12">
+      <o-crud-table
+        class="q-my-lg col-12 col-md-10 col-lg-8"
+        :entity="courseEntity"
+        :data="courseItems"
+        :columns="courseColumns"
+        :pagination="coursePagination"
+      >
+        <template v-slot:form="{ item }">
+          <q-select v-model="item.Semester" :options="semesters" label="Semester" />
+          <q-input v-model.number="item.Year" label="Year" type="number"></q-input>
+        </template>
+      </o-crud-table>
+    </div>
+
+    <div class="row justify-center col-12">
+      <o-crud-table
+        class="q-my-lg col-12 col-md-10 col-lg-8"
+        :entity="entity"
+        :data="items"
+        :columns="columns"
+        :pagination="pagination"
+        :actions="actionConfig"
+      >
+        <template v-slot:form="{ item }">
+          <q-input v-model.number="item.Code" label="Code" type="number" min="1" max="255"></q-input>
+          <q-input v-model="item.Description" label="Description" autogrow></q-input>
+        </template>
+      </o-crud-table>
+    </div>
   </q-page>
 </template>
 
