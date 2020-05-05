@@ -164,7 +164,7 @@ export default {
       key: 'Id',
       name: 'Course',
       displayName: (plural = false) => `Course${plural ? 's' : ''}`,
-      route: (key = '') => `/course_info/${courseInfoId}/course/${key}`,
+      route: (key = '') => `/course_info/${courseInfoId}/courses/${key}`,
       apiRoute: (key = '') => `CourseInfo/${courseInfoId}/Courses/${key}`,
       defaultValue () {
         return {
