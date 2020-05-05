@@ -26,7 +26,7 @@
       :actions="actionConfig"
     >
       <template v-slot:form="{ item }">
-        <q-input v-model="item.Code" label="Code"></q-input>
+        <q-input v-model.number="item.Code" label="Code" type="number" min="1" max="255"></q-input>
         <q-input v-model="item.Description" label="Description" autogrow></q-input>
       </template>
     </o-crud-table>
@@ -84,7 +84,7 @@ export default {
       defaultValue () {
         return {
           Id: 0,
-          Code: '',
+          Code: 0,
           Description: ''
         }
       }
