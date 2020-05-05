@@ -43,6 +43,14 @@
 
             <q-item-section>Departments</q-item-section>
           </q-item>
+
+          <q-item to="/course_info" clickable v-ripple>
+            <q-item-section avatar>
+              <q-icon name="mdi-bookshelf"></q-icon>
+            </q-item-section>
+
+            <q-item-section>Course Information</q-item-section>
+          </q-item>
         </q-list>
       </q-scroll-area>
     </q-drawer>
