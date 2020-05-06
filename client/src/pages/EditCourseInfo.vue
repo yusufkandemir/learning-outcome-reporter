@@ -51,11 +51,11 @@
     <div class="row justify-center col-12">
       <o-crud-table
         class="q-my-lg col-12 col-md-10 col-lg-8"
-        :entity="entity"
-        :data="items"
-        :columns="columns"
-        :pagination="pagination"
-        :actions="actionConfig"
+        :entity="learningOutcomeTable.entity"
+        :data="learningOutcomeTable.items"
+        :columns="learningOutcomeTable.columns"
+        :pagination="learningOutcomeTable.pagination"
+        :actions="learningOutcomeTable.actions"
       >
         <template v-slot:form="{ item }">
           <q-input v-model.number="item.Code" label="Code" type="number" min="1" max="255"></q-input>
@@ -80,67 +80,16 @@ export default defineComponent({
     OCrudTable
   },
   setup (props, context) {
-    const items = ref([])
-    const columns = ref([
-      {
-        name: 'code',
-        label: 'Code',
-        field: 'Code',
-        sortable: true,
-        searchable: true
-      },
-      {
-        name: 'description',
-        label: 'Description',
-        field: 'Description',
-        sortable: true,
-        searchable: true
-      },
-      { name: 'actions', label: 'Actions', align: 'right' }
-    ])
-    const pagination = reactive({
-      page: 1,
-      sortBy: 'code',
-      descending: false,
-      rowsPerPage: context.root.$q.screen.xs ? 12 : 24,
-      rowsNumber: 0
-    })
     const courseInfoId = context.root.$route.params.id
 
-    const entity = {
-      key: 'Id',
-      name: 'LearningOutcome',
-      displayName: (plural = false) => `Learning Outcome${plural ? 's' : ''}`,
-      route: (key = '') => `/course_info/${courseInfoId}/outcomes/${key}`,
-      apiRoute: (key = '') => `CourseInfo/${courseInfoId}/Outcomes/${key}`,
-      defaultValue () {
-        return {
-          Id: 0,
-          Code: 1,
-          Description: ''
-        }
-      }
-    }
-
-    const actionConfig = {
-      create: {
-        icon: 'mdi-plus'
-      },
-      edit: {
-        enabled: false
-      }
-    }
+    const learningOutcomeTable = useLearningOutcomeTable(context)
 
     const { items: courseItems, columns: courseColumns, pagination: coursePagination, entity: courseEntity, semesters } = useCourseTable(courseInfoId, context)
 
     const { loading, onUpdate, courseInfo } = useUpdateForm(courseInfoId)
 
     return {
-      items,
-      columns,
-      pagination,
-      entity,
-      actionConfig,
+      learningOutcomeTable: ref(learningOutcomeTable),
 
       courseEntity,
       courseItems,
@@ -271,6 +220,67 @@ function useCourseTable (courseInfoId, context) {
     columns,
     pagination,
     entity
+  }
+}
+
+function useLearningOutcomeTable (context) {
+  const items = ref([])
+  const columns = ref([
+    {
+      name: 'code',
+      label: 'Code',
+      field: 'Code',
+      sortable: true,
+      searchable: true
+    },
+    {
+      name: 'description',
+      label: 'Description',
+      field: 'Description',
+      sortable: true,
+      searchable: true
+    },
+    { name: 'actions', label: 'Actions', align: 'right' }
+  ])
+  const pagination = reactive({
+    page: 1,
+    sortBy: 'code',
+    descending: false,
+    rowsPerPage: context.root.$q.screen.xs ? 12 : 24,
+    rowsNumber: 0
+  })
+  const courseInfoId = context.root.$route.params.id
+
+  const entity = {
+    key: 'Id',
+    name: 'LearningOutcome',
+    displayName: (plural = false) => `Learning Outcome${plural ? 's' : ''}`,
+    route: (key = '') => `/course_info/${courseInfoId}/outcomes/${key}`,
+    apiRoute: (key = '') => `CourseInfo/${courseInfoId}/Outcomes/${key}`,
+    defaultValue () {
+      return {
+        Id: 0,
+        Code: 1,
+        Description: ''
+      }
+    }
+  }
+
+  const actions = {
+    create: {
+      icon: 'mdi-plus'
+    },
+    edit: {
+      enabled: false
+    }
+  }
+
+  return {
+    items,
+    columns,
+    pagination,
+    entity,
+    actions
   }
 }
 </script>
