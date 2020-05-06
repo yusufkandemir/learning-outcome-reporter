@@ -12,9 +12,15 @@
       v-on="$listeners"
     >
       <template v-slot:top-right>
-        <q-input dense debounce="500" v-model="filter" placeholder="Search">
+        <q-input
+          v-if="actionConfig.search.enabled"
+          v-model="filter"
+          dense
+          debounce="500"
+          :placeholder="actionConfig.search.label"
+        >
           <template v-slot:append>
-            <q-icon name="mdi-magnify" />
+            <q-icon :name="actionConfig.search.icon" />
           </template>
         </q-input>
 
@@ -85,14 +91,11 @@
 </template>
 
 <script>
-import axios from 'axios'
 import { extend } from 'quasar'
 import { defineComponent, ref, computed, onMounted, watch } from '@vue/composition-api'
 
 import OPopupForm from '../components/OPopupForm'
 import { useServerSideProcessedTable } from '../composition/useServerSideProcessedTable'
-
-import { fetchDataFromServer, pushDataToServer } from '../services/ApiService'
 
 export default defineComponent({
   name: 'OCrudTable',
@@ -115,8 +118,11 @@ export default defineComponent({
     const isFormOpen = ref(false)
 
     const onSave = async (data, isUpdating) => {
-      const path = props.entity.apiRoute(isUpdating ? data[props.entity.key] : '')
-      await pushDataToServer(path, data, isUpdating)
+      if (!isUpdating) {
+        await props.entity.service.create(data)
+      } else {
+        await props.entity.service.update(data[props.entity.key], data)
+      }
 
       refreshTable()
     }
@@ -125,8 +131,7 @@ export default defineComponent({
       if (!confirm('Are you sure you want to delete this item?')) return
 
       loading.value = true
-      const path = props.entity.apiRoute(item[props.entity.key])
-      await axios.delete(`/api/${path}`)
+      await props.entity.service.delete(item[props.entity.key])
       loading.value = false
 
       refreshTable()
@@ -176,6 +181,11 @@ function useAction (props) {
       enabled: true,
       icon: 'mdi-delete',
       label: 'Delete'
+    },
+    search: {
+      enabled: true,
+      icon: 'mdi-magnify',
+      label: 'Search'
     }
   }
 
@@ -205,11 +215,11 @@ function useTable (props, context) {
       }
 
       try {
-        const data = await fetchDataFromServer(props.entity.apiRoute(), { startRow, count, search, sortBy, descending })
+        const data = await props.entity.service.getAll({ startRow, count, search, sortBy, descending })
 
         return {
-          items: data.value,
-          count: data['@odata.count']
+          items: data.items,
+          count: data.count
         }
       } catch (error) {
         context.root.$q.notify({

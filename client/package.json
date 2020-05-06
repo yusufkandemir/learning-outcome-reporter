@@ -2,7 +2,7 @@
   "name": "client",
   "version": "0.0.1",
   "description": "A reporting app for program/learning outcomes",
-  "productName": "Teaching Outcome Reporter",
+  "productName": "Outcome Reporter",
   "cordovaId": "org.cordova.quasar.app",
   "capacitorId": "",
   "author": "Yusuf Kandemir <yusuf.kandemir@outlook.com.tr>",
