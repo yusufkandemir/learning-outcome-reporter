@@ -21,6 +21,7 @@
 import { defineComponent, ref, reactive } from '@vue/composition-api'
 
 import OCrudTable from '../components/OCrudTable'
+import { ODataApiService } from '../services/ApiService'
 
 export default defineComponent({
   name: 'EditCoursePage',
@@ -58,12 +59,13 @@ export default defineComponent({
 
     const { courseId, courseInfoId } = context.root.$route.params
 
+    const assignmentsService = new ODataApiService(`/api/Course/${courseId}/Assignments`)
     const entity = {
       key: 'Id',
       name: 'Assignment',
       displayName: (plural = false) => `Assignment${plural ? 's' : ''}`,
       route: (key = '') => `/course_info/${courseInfoId}/courses/${courseId}/assignments/${key}`,
-      apiRoute: (key = '') => `/Course/${courseId}/Assignments/${key}`,
+      service: assignmentsService,
       defaultValue () {
         return {
           Id: 0,
