@@ -8,13 +8,6 @@
           </q-card-section>
 
           <q-card-section>
-            <q-input
-              v-model.number="assignment.CourseId"
-              label="Course Id"
-              type="number"
-              min="1"
-              :loading="loading"
-            ></q-input>
             <q-select v-model="assignment.Type" :options="assignmentTypes" label="Type"></q-select>
             <q-input
               v-model.number="assignment.Weight"
