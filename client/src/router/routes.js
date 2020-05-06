@@ -8,7 +8,8 @@ const routes = [
       { path: '/departments', component: () => import('pages/Departments.vue') },
       { path: '/departments/:id', component: () => import('pages/EditDepartment.vue') },
       { path: '/course_info', component: () => import('pages/CourseInfo.vue') },
-      { path: '/course_info/:id', component: () => import('pages/EditCourseInfo.vue') }
+      { path: '/course_info/:id', component: () => import('pages/EditCourseInfo.vue') },
+      { path: '/course_info/:courseInfoId/courses/:courseId', component: () => import('pages/Assignments.vue') }
     ]
   }
 ]
