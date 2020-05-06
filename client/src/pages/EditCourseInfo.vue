@@ -36,13 +36,13 @@
     <div class="row justify-center col-12">
       <o-crud-table
         class="q-my-lg col-12 col-md-10 col-lg-8"
-        :entity="courseEntity"
-        :data="courseItems"
-        :columns="courseColumns"
-        :pagination="coursePagination"
+        :entity="courseTable.entity"
+        :data="courseTable.items"
+        :columns="courseTable.columns"
+        :pagination="courseTable.pagination"
       >
         <template v-slot:form="{ item }">
-          <q-select v-model="item.Semester" :options="semesters" label="Semester" />
+          <q-select v-model="item.Semester" :options="courseTable.semesters" label="Semester" />
           <q-input v-model.number="item.Year" label="Year" type="number"></q-input>
         </template>
       </o-crud-table>
@@ -82,24 +82,19 @@ export default defineComponent({
   setup (props, context) {
     const courseInfoId = context.root.$route.params.id
 
-    const learningOutcomeTable = useLearningOutcomeTable(context)
+    const courseTable = useCourseTable(courseInfoId, context)
 
-    const { items: courseItems, columns: courseColumns, pagination: coursePagination, entity: courseEntity, semesters } = useCourseTable(courseInfoId, context)
+    const learningOutcomeTable = useLearningOutcomeTable(context)
 
     const { loading, onUpdate, courseInfo } = useUpdateForm(courseInfoId)
 
     return {
+      courseTable: ref(courseTable),
       learningOutcomeTable: ref(learningOutcomeTable),
-
-      courseEntity,
-      courseItems,
-      courseColumns,
-      coursePagination,
 
       loading,
       onUpdate,
-      courseInfo,
-      semesters
+      courseInfo
     }
   }
 })
