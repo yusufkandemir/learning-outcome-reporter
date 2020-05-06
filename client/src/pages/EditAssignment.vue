@@ -46,11 +46,10 @@
 
 <script>
 import { defineComponent, ref, reactive, onMounted } from '@vue/composition-api'
-import axios from 'axios'
 import { Notify } from 'quasar'
 
 import OCrudTable from '../components/OCrudTable'
-import { pushDataToServer } from '../services/ApiService'
+import { ODataApiService } from '../services/ApiService'
 
 export default defineComponent({
   name: 'EditAssignmentPage',
@@ -80,12 +79,12 @@ function useUpdateForm (courseId, assignmentId) {
     Weight: 1
   })
 
-  const path = `Course/${courseId}/Assignments`
+  const assignmentService = new ODataApiService(`/api/Course/${courseId}/Assignments`)
 
   onMounted(async () => {
     loading.value = true
     try {
-      const { data } = await axios(`/api/${path}`)
+      const data = await assignmentService.get(assignmentId)
       Object.assign(assignmentId, data)
     } catch (error) {
       Notify.create({
@@ -105,7 +104,7 @@ function useUpdateForm (courseId, assignmentId) {
     loading.value = true
 
     try {
-      await pushDataToServer(path, assignmentId, true)
+      await assignmentService.update(assignmentId, assignment)
     } catch (error) {
       Notify.create({
         type: 'negative',
@@ -162,12 +161,14 @@ function useAssignmentTaskTable (context) {
 
   const { assignmentId, courseInfoId, courseId } = context.root.$route.params
 
+  const assignmentTaskService = new ODataApiService(`/api/Course/${courseId}/Assignments/${assignmentId}/AssignmentTasks`)
+
   const entity = {
     key: 'Id',
     name: 'AssignmentTask',
     displayName: (plural = false) => `Assignment Task${plural ? 's' : ''}`,
     route: (key = '') => `/course_info/${courseInfoId}/courses/${courseId}/assignments/${assignmentId}/assignment_task/${key}`,
-    apiRoute: (key = '') => `Course/${courseId}/Assignments/${assignmentId}/AssignmentTasks/${key}`,
+    service: assignmentTaskService,
     defaultValue () {
       return {
         Id: 0,
