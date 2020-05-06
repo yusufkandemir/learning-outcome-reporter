@@ -62,11 +62,14 @@ export default defineComponent({
     const { courseId, assignmentId } = context.root.$route.params
     const { loading, onUpdate, assignment } = useUpdateForm(courseId, assignmentId)
 
+    const assignmentTypes = ['Midterm', 'Final', 'Project', 'LabExam', 'Assignment', 'Other']
+
     return {
       assignmentTaskTable: ref(assignmentTaskTable),
       loading,
       onUpdate,
-      assignment
+      assignment,
+      assignmentTypes
     }
   }
 })
