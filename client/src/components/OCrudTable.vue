@@ -218,8 +218,8 @@ function useTable (props, context) {
         const data = await props.entity.service.getAll({ startRow, count, search, sortBy, descending })
 
         return {
-          items: data.value,
-          count: data['@odata.count']
+          items: data.items,
+          count: data.count
         }
       } catch (error) {
         context.root.$q.notify({

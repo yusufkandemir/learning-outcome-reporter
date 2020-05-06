@@ -34,9 +34,12 @@ export class ODataApiService {
       params.append('$filter', filterQuery)
     }
 
-    const response = await this.client.get(`?${params.toString()}`)
+    const { data } = await this.client.get(`?${params.toString()}`)
 
-    return response.data
+    return {
+      count: data['@odata.count'],
+      items: data.value
+    }
   }
 
   async get (key) {
