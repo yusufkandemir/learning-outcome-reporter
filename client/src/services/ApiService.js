@@ -39,6 +39,12 @@ export class ODataApiService {
     return response.data
   }
 
+  async get (key) {
+    const response = await this.client.get(`/${key}`)
+
+    return response.data
+  }
+
   async create (data) {
     const response = await this.client.post('/', data)
 

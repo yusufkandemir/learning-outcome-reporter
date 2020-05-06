@@ -35,11 +35,10 @@
 
 <script>
 import { defineComponent, ref, reactive, onMounted } from '@vue/composition-api'
-import axios from 'axios'
 import { Notify } from 'quasar'
 
 import OCrudTable from '../components/OCrudTable'
-import { pushDataToServer, ODataApiService } from '../services/ApiService'
+import { ODataApiService } from '../services/ApiService'
 
 export default defineComponent({
   name: 'EditDepartmentPage',
@@ -101,7 +100,9 @@ export default defineComponent({
       }
     }
 
-    const { loading, onUpdate, department } = useUpdateForm(departmentId)
+    const departmentService = new ODataApiService('/api/Department/')
+
+    const { loading, onUpdate, department } = useUpdateForm(departmentService, departmentId)
 
     return {
       items,
@@ -117,7 +118,7 @@ export default defineComponent({
   }
 })
 
-function useUpdateForm (departmentId) {
+function useUpdateForm (departmentService, departmentId) {
   const loading = ref(false)
 
   const department = reactive({
@@ -125,13 +126,11 @@ function useUpdateForm (departmentId) {
     Name: ''
   })
 
-  const path = `Department/${departmentId}`
-
   onMounted(async () => {
     loading.value = true
 
     try {
-      const { data } = await axios(`/api/${path}`)
+      const data = await departmentService.get(departmentId)
       Object.assign(department, data)
     } catch (error) {
       Notify.create({
@@ -151,7 +150,7 @@ function useUpdateForm (departmentId) {
     loading.value = true
 
     try {
-      await pushDataToServer(path, department, true)
+      await departmentService.update(departmentId, department)
     } catch (error) {
       Notify.create({
         type: 'negative',
