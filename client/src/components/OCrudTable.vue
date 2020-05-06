@@ -98,8 +98,6 @@ import { defineComponent, ref, computed, onMounted, watch } from '@vue/compositi
 import OPopupForm from '../components/OPopupForm'
 import { useServerSideProcessedTable } from '../composition/useServerSideProcessedTable'
 
-import { fetchDataFromServer } from '../services/ApiService'
-
 export default defineComponent({
   name: 'OCrudTable',
   components: {
@@ -219,7 +217,7 @@ function useTable (props, context) {
       }
 
       try {
-        const data = await fetchDataFromServer(props.entity.apiRoute(), { startRow, count, search, sortBy, descending })
+        const data = await props.entity.service.getAll({ startRow, count, search, sortBy, descending })
 
         return {
           items: data.value,
