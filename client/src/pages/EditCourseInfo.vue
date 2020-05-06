@@ -131,49 +131,7 @@ export default defineComponent({
       }
     }
 
-    const semesters = ['Fall', 'Spring', 'Summer']
-
-    const courseItems = ref([])
-
-    const courseColumns = ref([
-      {
-        name: 'semester',
-        label: 'Semester',
-        field: 'Semester',
-        sortable: true,
-        searchable: true
-      },
-      {
-        name: 'year',
-        label: 'Year',
-        field: 'Year',
-        sortable: true,
-        searchable: true
-      },
-      { name: 'actions', label: 'Actions', align: 'right' }
-    ])
-    const coursePagination = reactive({
-      page: 1,
-      sortBy: 'year',
-      descending: true,
-      rowsPerPage: context.root.$q.screen.xs ? 12 : 24,
-      rowsNumber: 0
-    })
-
-    const courseEntity = {
-      key: 'Id',
-      name: 'Course',
-      displayName: (plural = false) => `Course${plural ? 's' : ''}`,
-      route: (key = '') => `/course_info/${courseInfoId}/courses/${key}`,
-      apiRoute: (key = '') => `CourseInfo/${courseInfoId}/Courses/${key}`,
-      defaultValue () {
-        return {
-          Id: 0,
-          Semester: '',
-          Year: new Date().getFullYear()
-        }
-      }
-    }
+    const { items: courseItems, columns: courseColumns, pagination: coursePagination, entity: courseEntity, semesters } = useCourseTable(courseInfoId, context)
 
     const { loading, onUpdate, courseInfo } = useUpdateForm(courseInfoId)
 
@@ -259,6 +217,60 @@ function useUpdateForm (courseInfoId) {
     loading,
     onUpdate,
     courseInfo
+  }
+}
+
+function useCourseTable (courseInfoId, context) {
+  const semesters = ['Fall', 'Spring', 'Summer']
+
+  const items = ref([])
+  const columns = ref([
+    {
+      name: 'semester',
+      label: 'Semester',
+      field: 'Semester',
+      sortable: true,
+      searchable: true
+    },
+    {
+      name: 'year',
+      label: 'Year',
+      field: 'Year',
+      sortable: true,
+      searchable: true
+    },
+    { name: 'actions', label: 'Actions', align: 'right' }
+  ])
+  const pagination = reactive({
+    page: 1,
+    sortBy: 'year',
+    descending: true,
+    rowsPerPage: context.root.$q.screen.xs ? 12 : 24,
+    rowsNumber: 0
+  })
+
+  const entity = {
+    key: 'Id',
+    name: 'Course',
+    displayName: (plural = false) => `Course${plural ? 's' : ''}`,
+    route: (key = '') => `/course_info/${courseInfoId}/courses/${key}`,
+    apiRoute: (key = '') => `CourseInfo/${courseInfoId}/Courses/${key}`,
+    defaultValue () {
+      return {
+        Id: 0,
+        Semester: '',
+        Year: new Date().getFullYear()
+      }
+    }
+  }
+
+  return {
+    semesters,
+
+    items,
+    columns,
+    pagination,
+    entity
   }
 }
 </script>
