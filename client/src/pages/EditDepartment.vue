@@ -39,7 +39,7 @@ import axios from 'axios'
 import { Notify } from 'quasar'
 
 import OCrudTable from '../components/OCrudTable'
-import { pushDataToServer } from '../services/ApiService'
+import { pushDataToServer, ODataApiService } from '../services/ApiService'
 
 export default defineComponent({
   name: 'EditDepartmentPage',
@@ -75,12 +75,14 @@ export default defineComponent({
 
     const departmentId = context.root.$route.params.id
 
+    const programOutcomeService = new ODataApiService(`/api/Department/${departmentId}/Outcomes`)
+
     const entity = {
       key: 'Id',
       name: 'ProgramOutcome',
       displayName: (plural = false) => `Program Outcome${plural ? 's' : ''}`,
       route: (key = '') => `/departments/${departmentId}/outcomes/${key}`,
-      apiRoute: (key = '') => `Department/${departmentId}/Outcomes/${key}`,
+      service: programOutcomeService,
       defaultValue () {
         return {
           Id: 0,
