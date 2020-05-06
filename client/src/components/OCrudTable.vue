@@ -91,7 +91,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 import { extend } from 'quasar'
 import { defineComponent, ref, computed, onMounted, watch } from '@vue/composition-api'
 
@@ -132,8 +131,7 @@ export default defineComponent({
       if (!confirm('Are you sure you want to delete this item?')) return
 
       loading.value = true
-      const path = props.entity.apiRoute(item[props.entity.key])
-      await axios.delete(`/api/${path}`)
+      await props.entity.service.delete(item[props.entity.key])
       loading.value = false
 
       refreshTable()

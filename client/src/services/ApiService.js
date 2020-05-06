@@ -50,6 +50,12 @@ export class ODataApiService {
 
     return response.data
   }
+
+  async delete (key) {
+    const response = await this.client.delete(`/${key}`)
+
+    return response.data
+  }
 }
 
 export async function fetchDataFromServer (path, { startRow, count, search, sortBy, descending }) {
