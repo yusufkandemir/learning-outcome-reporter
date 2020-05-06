@@ -54,7 +54,6 @@ export default defineComponent({
       name: 'Department',
       displayName: (plural = false) => `Department${plural ? 's' : ''}`,
       route: (key = '') => `/departments/${key}`,
-      apiRoute: (key = '') => `Department/${key}`,
       service: departmentService,
       defaultValue () {
         return {
