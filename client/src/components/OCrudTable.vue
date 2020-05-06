@@ -12,9 +12,15 @@
       v-on="$listeners"
     >
       <template v-slot:top-right>
-        <q-input dense debounce="500" v-model="filter" placeholder="Search">
+        <q-input
+          v-if="actionConfig.search.enabled"
+          v-model="filter"
+          dense
+          debounce="500"
+          :placeholder="actionConfig.search.label"
+        >
           <template v-slot:append>
-            <q-icon name="mdi-magnify" />
+            <q-icon :name="actionConfig.search.icon" />
           </template>
         </q-input>
 
@@ -176,6 +182,11 @@ function useAction (props) {
       enabled: true,
       icon: 'mdi-delete',
       label: 'Delete'
+    },
+    search: {
+      enabled: true,
+      icon: 'mdi-magnify',
+      label: 'Search'
     }
   }
 
