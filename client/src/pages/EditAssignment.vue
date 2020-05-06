@@ -58,11 +58,10 @@ export default defineComponent({
     OCrudTable
   },
   setup (props, context) {
-    const assignmentId = context.root.$route.params.id
-
     const assignmentTaskTable = useAssignmentTaskTable(context)
 
-    const { loading, onUpdate, assignment } = useUpdateForm(assignmentId)
+    const { courseId, assignmentId } = context.root.$route.params
+    const { loading, onUpdate, assignment } = useUpdateForm(courseId, assignmentId)
 
     return {
       assignmentTaskTable: ref(assignmentTaskTable),
@@ -73,7 +72,7 @@ export default defineComponent({
   }
 })
 
-function useUpdateForm (assignmentId) {
+function useUpdateForm (courseId, assignmentId) {
   const loading = ref(false)
   const assignment = reactive({
     Id: 0,
@@ -81,7 +80,7 @@ function useUpdateForm (assignmentId) {
     Weight: 1
   })
 
-  const path = `EditCourse/${assignmentId}`
+  const path = `Course/${courseId}/Assignments`
 
   onMounted(async () => {
     loading.value = true
@@ -161,14 +160,14 @@ function useAssignmentTaskTable (context) {
     rowsNumber: 0
   })
 
-  const assignmentId = context.root.$route.params.id
+  const { assignmentId, courseInfoId, courseId } = context.root.$route.params
 
   const entity = {
     key: 'Id',
     name: 'AssignmentTask',
     displayName: (plural = false) => `Assignment Task${plural ? 's' : ''}`,
-    route: (key = '') => `/editCourse/${assignmentId}/assignmentTask/${key}`,
-    apiRoute: (key = '') => `EditCourse/${assignmentId}/AssignmentTask/${key}`,
+    route: (key = '') => `/course_info/${courseInfoId}/courses/${courseId}/assignments/${assignmentId}/assignment_task/${key}`,
+    apiRoute: (key = '') => `Course/${courseId}/Assignments/${assignmentId}/AssignmentTasks/${key}`,
     defaultValue () {
       return {
         Id: 0,
