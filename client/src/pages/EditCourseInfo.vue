@@ -68,11 +68,10 @@
 
 <script>
 import { defineComponent, ref, reactive, onMounted } from '@vue/composition-api'
-import axios from 'axios'
 import { Notify } from 'quasar'
 
 import OCrudTable from '../components/OCrudTable'
-import { pushDataToServer } from '../services/ApiService'
+import { ODataApiService } from '../services/ApiService'
 
 export default defineComponent({
   name: 'EditCourseInfoPage',
@@ -110,13 +109,13 @@ function useUpdateForm (courseInfoId) {
     DepartmentId: 1
   })
 
-  const path = `CourseInfo/${courseInfoId}`
+  const courseInfoService = new ODataApiService('/api/CourseInfo')
 
   onMounted(async () => {
     loading.value = true
 
     try {
-      const { data } = await axios(`/api/${path}`)
+      const data = await courseInfoService.get(courseInfoId)
       Object.assign(courseInfo, data)
     } catch (error) {
       Notify.create({
@@ -136,7 +135,7 @@ function useUpdateForm (courseInfoId) {
     loading.value = true
 
     try {
-      await pushDataToServer(path, courseInfo, true)
+      await courseInfoService.update(courseInfoId, courseInfo)
     } catch (error) {
       Notify.create({
         type: 'negative',
@@ -193,12 +192,14 @@ function useCourseTable (courseInfoId, context) {
     rowsNumber: 0
   })
 
+  const courseService = new ODataApiService(`/api/CourseInfo/${courseInfoId}/Courses`)
+
   const entity = {
     key: 'Id',
     name: 'Course',
     displayName: (plural = false) => `Course${plural ? 's' : ''}`,
     route: (key = '') => `/course_info/${courseInfoId}/courses/${key}`,
-    apiRoute: (key = '') => `CourseInfo/${courseInfoId}/Courses/${key}`,
+    service: courseService,
     defaultValue () {
       return {
         Id: 0,
@@ -246,12 +247,14 @@ function useLearningOutcomeTable (context) {
   })
   const courseInfoId = context.root.$route.params.id
 
+  const learningOutcomeService = new ODataApiService(`/api/CourseInfo/${courseInfoId}/Outcomes`)
+
   const entity = {
     key: 'Id',
     name: 'LearningOutcome',
     displayName: (plural = false) => `Learning Outcome${plural ? 's' : ''}`,
     route: (key = '') => `/course_info/${courseInfoId}/outcomes/${key}`,
-    apiRoute: (key = '') => `CourseInfo/${courseInfoId}/Outcomes/${key}`,
+    service: learningOutcomeService,
     defaultValue () {
       return {
         Id: 0,
