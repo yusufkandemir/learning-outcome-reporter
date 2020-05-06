@@ -20,6 +20,7 @@
 import { defineComponent, ref, reactive } from '@vue/composition-api'
 
 import OCrudTable from '../components/OCrudTable'
+import { ODataApiService } from '../services/ApiService'
 
 export default defineComponent({
   name: 'DepartmentsPage',
@@ -45,12 +46,16 @@ export default defineComponent({
       rowsPerPage: context.root.$q.screen.xs ? 12 : 24,
       rowsNumber: 0
     })
+
+    const departmentService = new ODataApiService('/api/Department')
+
     const entity = {
       key: 'Id',
       name: 'Department',
       displayName: (plural = false) => `Department${plural ? 's' : ''}`,
       route: (key = '') => `/departments/${key}`,
       apiRoute: (key = '') => `Department/${key}`,
+      service: departmentService,
       defaultValue () {
         return {
           Id: 0,

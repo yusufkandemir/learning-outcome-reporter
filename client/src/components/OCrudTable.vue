@@ -98,7 +98,7 @@ import { defineComponent, ref, computed, onMounted, watch } from '@vue/compositi
 import OPopupForm from '../components/OPopupForm'
 import { useServerSideProcessedTable } from '../composition/useServerSideProcessedTable'
 
-import { fetchDataFromServer, pushDataToServer } from '../services/ApiService'
+import { fetchDataFromServer } from '../services/ApiService'
 
 export default defineComponent({
   name: 'OCrudTable',
@@ -121,8 +121,11 @@ export default defineComponent({
     const isFormOpen = ref(false)
 
     const onSave = async (data, isUpdating) => {
-      const path = props.entity.apiRoute(isUpdating ? data[props.entity.key] : '')
-      await pushDataToServer(path, data, isUpdating)
+      if (!isUpdating) {
+        await props.entity.service.create(data)
+      } else {
+        await props.entity.service.update(data[props.entity.key], data)
+      }
 
       refreshTable()
     }
