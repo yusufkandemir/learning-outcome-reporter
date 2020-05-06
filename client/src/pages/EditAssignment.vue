@@ -16,7 +16,15 @@
               :loading="loading"
             ></q-input>
             <q-select v-model="assignment.Type" :options="assignmentTypes" label="Type"></q-select>
-            <q-input v-model="assignment.Weight" label="Assignment Weight" :loading="loading"></q-input>
+            <q-input
+              v-model.number="assignment.Weight"
+              label="Weight"
+              type="number"
+              min="0"
+              max="1"
+              step="0.05"
+              :loading="loading"
+            ></q-input>
           </q-card-section>
 
           <q-card-actions class="justify-end">
@@ -36,8 +44,15 @@
         :actions="assignmentTaskTable.actions"
       >
         <template v-slot:form="{ item }">
-          <q-input v-model.number="item.Number" label="Code" type="number"></q-input>
-          <q-input v-model.number="item.Weight" label="Code" type="number" min="0" max="1"></q-input>
+          <q-input v-model.number="item.Number" label="Number" type="number"></q-input>
+          <q-input
+            v-model.number="item.Weight"
+            label="Weight"
+            type="number"
+            min="0"
+            max="1"
+            step="0.01"
+          ></q-input>
         </template>
       </o-crud-table>
     </div>
