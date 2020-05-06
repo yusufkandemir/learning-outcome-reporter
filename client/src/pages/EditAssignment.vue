@@ -48,8 +48,10 @@
 import { defineComponent, ref, reactive, onMounted } from '@vue/composition-api'
 import axios from 'axios'
 import { Notify } from 'quasar'
+
 import OCrudTable from '../components/OCrudTable'
 import { pushDataToServer } from '../services/ApiService'
+
 export default defineComponent({
   name: 'EditAssignmentPage',
   components: {
@@ -57,8 +59,11 @@ export default defineComponent({
   },
   setup (props, context) {
     const assignmentId = context.root.$route.params.id
+
     const assignmentTaskTable = useAssignmentTaskTable(context)
+
     const { loading, onUpdate, assignment } = useUpdateForm(assignmentId)
+
     return {
       assignmentTaskTable: ref(assignmentTaskTable),
       loading,
@@ -67,6 +72,7 @@ export default defineComponent({
     }
   }
 })
+
 function useUpdateForm (assignmentId) {
   const loading = ref(false)
   const assignment = reactive({
@@ -74,7 +80,9 @@ function useUpdateForm (assignmentId) {
     Number: 1,
     Weight: 1
   })
+
   const path = `EditCourse/${assignmentId}`
+
   onMounted(async () => {
     loading.value = true
     try {
@@ -87,13 +95,16 @@ function useUpdateForm (assignmentId) {
         message: 'An error occured while fetching the data',
         caption: error.message
       })
+
       return
     } finally {
       loading.value = false
     }
   })
+
   const onUpdate = async () => {
     loading.value = true
+
     try {
       await pushDataToServer(path, assignmentId, true)
     } catch (error) {
@@ -103,22 +114,26 @@ function useUpdateForm (assignmentId) {
         message: 'An error occured while updating',
         caption: error.message
       })
+
       return
     } finally {
       loading.value = false
     }
+
     Notify.create({
       type: 'positive',
       position: 'top',
       message: 'Update successful'
     })
   }
+
   return {
     loading,
     onUpdate,
     assignment
   }
 }
+
 function useAssignmentTaskTable (context) {
   const items = ref([])
   const columns = ref([
@@ -145,7 +160,9 @@ function useAssignmentTaskTable (context) {
     rowsPerPage: context.root.$q.screen.xs ? 12 : 24,
     rowsNumber: 0
   })
+
   const assignmentId = context.root.$route.params.id
+
   const entity = {
     key: 'Id',
     name: 'AssignmentTask',
@@ -160,6 +177,7 @@ function useAssignmentTaskTable (context) {
       }
     }
   }
+
   const actions = {
     create: {
       icon: 'mdi-plus'
@@ -168,6 +186,7 @@ function useAssignmentTaskTable (context) {
       enabled: false
     }
   }
+
   return {
     items,
     columns,
