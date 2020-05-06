@@ -78,7 +78,8 @@ function useUpdateForm (courseId, assignmentId) {
   const loading = ref(false)
   const assignment = reactive({
     Id: 0,
-    Number: 1,
+    CourseId: 0,
+    Type: '',
     Weight: 1
   })
 
@@ -88,7 +89,7 @@ function useUpdateForm (courseId, assignmentId) {
     loading.value = true
     try {
       const data = await assignmentService.get(assignmentId)
-      Object.assign(assignmentId, data)
+      Object.assign(assignment, data)
     } catch (error) {
       Notify.create({
         type: 'negative',
@@ -143,20 +144,20 @@ function useAssignmentTaskTable (context) {
       label: 'Number',
       field: 'Number',
       sortable: true,
-      searchable: true
+      searchable: false
     },
     {
       name: 'weight',
       label: 'Weight',
       field: 'Weight',
       sortable: true,
-      searchable: true
+      searchable: false
     },
     { name: 'actions', label: 'Actions', align: 'right' }
   ])
   const pagination = reactive({
     page: 1,
-    sortBy: 'code',
+    sortBy: 'number',
     descending: false,
     rowsPerPage: context.root.$q.screen.xs ? 12 : 24,
     rowsNumber: 0
@@ -175,8 +176,8 @@ function useAssignmentTaskTable (context) {
     defaultValue () {
       return {
         Id: 0,
-        Code: 1,
-        Description: ''
+        Number: 1,
+        Weight: 1
       }
     }
   }
