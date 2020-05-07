@@ -38,8 +38,7 @@ ALTER TABLE [users] ADD CONSTRAINT [FK_users_department_id]
 CREATE TABLE students
 (
   [id] nvarchar(10) not null,
-  [name] nvarchar(255) not null,
-  [surname] nvarchar(255) not null,
+  [full_name] nvarchar(255) not null,
   PRIMARY KEY ([id])
 );
 
