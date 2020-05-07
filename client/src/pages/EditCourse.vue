@@ -1,7 +1,27 @@
 <template>
-  <q-page class="flex flex-center" padding>
-    <div class="q-my-lg">
+  <q-page class="flex row justify-center content-start items-center q-col-gutter-lg" padding>
+    <div class="row justify-center col-12 col-lg-4">
+      <div class="col-12">
+        <q-card class="q-pa-sm">
+          <q-card-section>
+            <span class="text-h5">Edit Course</span>
+          </q-card-section>
+
+          <q-card-section>
+            <q-select v-model="course.Semester" :options="semesters" label="Semester" />
+            <q-input v-model.number="course.Year" label="Year" type="number"></q-input>
+          </q-card-section>
+
+          <q-card-actions class="justify-end">
+            <q-btn color="primary" @click="onUpdate" :loading="loading">Update</q-btn>
+          </q-card-actions>
+        </q-card>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-8">
       <o-crud-table
+        class="q-my-lg"
         :entity="assignmentTable.entity"
         :data="assignmentTable.items"
         :columns="assignmentTable.columns"
@@ -18,10 +38,11 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive } from '@vue/composition-api'
+import { defineComponent, ref, reactive, onMounted } from '@vue/composition-api'
 
 import OCrudTable from '../components/OCrudTable'
 import { ODataApiService } from '../services/ApiService'
+import { Notify } from 'quasar'
 
 export default defineComponent({
   name: 'EditCoursePage',
@@ -29,13 +50,87 @@ export default defineComponent({
     OCrudTable
   },
   setup (props, context) {
+    const { courseInfoId, courseId } = context.root.$route.params
+    const { loading, onUpdate, course } = useUpdateForm(courseInfoId, courseId)
+
+    const semesters = ['Fall', 'Spring', 'Summer']
+
     const assignmentTable = useAssignmentTable(context)
 
     return {
+      loading,
+      onUpdate,
+      course,
+      semesters,
+
       assignmentTable: ref(assignmentTable)
     }
   }
 })
+
+function useUpdateForm (courseInfoId, courseId) {
+  const loading = ref(false)
+
+  const course = reactive({
+    Id: 0,
+    Semester: '',
+    Year: new Date().getFullYear()
+  })
+
+  const courseService = new ODataApiService(`/api/CourseInfo/${courseInfoId}/Courses`)
+
+  onMounted(async () => {
+    loading.value = true
+
+    try {
+      const data = await courseService.get(courseId)
+      console.log(data, courseId)
+      Object.assign(course, data)
+    } catch (error) {
+      Notify.create({
+        type: 'negative',
+        position: 'top',
+        message: 'An error occured while fetching the data',
+        caption: error.message
+      })
+
+      return
+    } finally {
+      loading.value = false
+    }
+  })
+
+  const onUpdate = async () => {
+    loading.value = true
+
+    try {
+      await courseService.update(courseId, course)
+    } catch (error) {
+      Notify.create({
+        type: 'negative',
+        position: 'top',
+        message: 'An error occured while updating',
+        caption: error.message
+      })
+
+      return
+    } finally {
+      loading.value = false
+    }
+
+    Notify.create({
+      type: 'positive',
+      position: 'top',
+      message: 'Update successful'
+    })
+  }
+
+  return {
+    loading,
+    onUpdate,
+    course
+  }
+}
 
 function useAssignmentTable (context) {
   const items = ref([])
