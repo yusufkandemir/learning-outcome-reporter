@@ -265,7 +265,8 @@ namespace server.Models
                     .HasMaxLength(8);
             });
 
-            modelBuilder.Entity<ProgramOutcome>(entity => {
+            modelBuilder.Entity<ProgramOutcome>(entity =>
+            {
                 entity.Property(e => e.DepartmentId).HasColumnName("department_id");
 
                 entity.HasOne(d => d.Department)
@@ -275,7 +276,8 @@ namespace server.Models
                     .HasConstraintName("FK_outcomes_department_id");
             });
 
-            modelBuilder.Entity<LearningOutcome>(entity => {
+            modelBuilder.Entity<LearningOutcome>(entity =>
+            {
                 entity.Property(e => e.CourseInfoId).HasColumnName("course_info_id");
 
                 entity.HasOne(d => d.CourseInfo)
@@ -293,14 +295,9 @@ namespace server.Models
                     .HasColumnName("id")
                     .HasMaxLength(10);
 
-                entity.Property(e => e.Name)
+                entity.Property(e => e.fullName)
                     .IsRequired()
-                    .HasColumnName("name")
-                    .HasMaxLength(255);
-
-                entity.Property(e => e.Surname)
-                    .IsRequired()
-                    .HasColumnName("surname")
+                    .HasColumnName("full_name")
                     .HasMaxLength(255);
             });
 

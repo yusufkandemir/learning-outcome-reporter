@@ -11,9 +11,7 @@ namespace server.Models
         }
 
         public string Id { get; set; }
-        public string Name { get; set; }
-        public string Surname { get; set; }
-
+        public string fullName { get; set; }
         public virtual ICollection<CourseResult> CourseResults { get; set; }
     }
 }
