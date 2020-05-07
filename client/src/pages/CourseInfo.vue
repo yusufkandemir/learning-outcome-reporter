@@ -46,7 +46,7 @@ export default defineComponent({
         label: 'Credit',
         field: 'Credit',
         sortable: true,
-        searchable: true
+        searchable: false
       },
       {
         name: 'departmentId',

@@ -40,6 +40,7 @@
         :data="courseTable.items"
         :columns="courseTable.columns"
         :pagination="courseTable.pagination"
+        :actions="courseTable.actions"
       >
         <template v-slot:form="{ item }">
           <q-select v-model="item.Semester" :options="courseTable.semesters" label="Semester" />
@@ -173,14 +174,14 @@ function useCourseTable (courseInfoId, context) {
       label: 'Semester',
       field: 'Semester',
       sortable: true,
-      searchable: true
+      searchable: false
     },
     {
       name: 'year',
       label: 'Year',
       field: 'Year',
       sortable: true,
-      searchable: true
+      searchable: false
     },
     { name: 'actions', label: 'Actions', align: 'right' }
   ])
@@ -209,13 +210,20 @@ function useCourseTable (courseInfoId, context) {
     }
   }
 
+  const actions = {
+    search: {
+      enabled: false
+    }
+  }
+
   return {
     semesters,
 
     items,
     columns,
     pagination,
-    entity
+    entity,
+    actions
   }
 }
 
@@ -227,7 +235,7 @@ function useLearningOutcomeTable (context) {
       label: 'Code',
       field: 'Code',
       sortable: true,
-      searchable: true
+      searchable: false
     },
     {
       name: 'description',
