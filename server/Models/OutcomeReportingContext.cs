@@ -295,7 +295,7 @@ namespace server.Models
                     .HasColumnName("id")
                     .HasMaxLength(10);
 
-                entity.Property(e => e.fullName)
+                entity.Property(e => e.FullName)
                     .IsRequired()
                     .HasColumnName("full_name")
                     .HasMaxLength(255);
