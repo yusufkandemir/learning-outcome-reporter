@@ -78,6 +78,9 @@ export default defineComponent({
     const actionConfig = {
       create: {
         icon: 'mdi-clipboard-check'
+      },
+      search: {
+        enabled: false
       }
     }
 

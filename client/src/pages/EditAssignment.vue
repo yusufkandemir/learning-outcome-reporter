@@ -196,6 +196,9 @@ function useAssignmentTaskTable (context) {
     },
     edit: {
       enabled: false
+    },
+    search: {
+      enabled: false
     }
   }
 
