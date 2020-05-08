@@ -21,6 +21,7 @@
             <div class="col-12 col-sm-6">
               <q-input
                 filled
+                :disable="form.CourseInfoId == null"
                 v-model.number="form.CourseId"
                 label="Course Id"
                 type="number"
