@@ -65,7 +65,12 @@
             </q-file>
 
             <q-stepper-navigation class="flex justify-end">
-              <q-btn @click="step = 2" color="primary" label="Continue" :disabled="file === null" />
+              <q-btn
+                @click="step = 2"
+                color="primary"
+                label="Continue"
+                :disabled="file === null || form.CourseId == null"
+              />
             </q-stepper-navigation>
           </q-step>
 
@@ -134,7 +139,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive, watch } from '@vue/composition-api'
+import { defineComponent, ref, reactive } from '@vue/composition-api'
 
 import OCrudTable from '../components/OCrudTable'
 
@@ -148,11 +153,6 @@ export default defineComponent({
     const step = ref(1)
 
     const file = ref(null)
-    watch(file, value => {
-      if (value !== null) {
-        step.value = 2
-      }
-    })
 
     const submit = () => {
       //
