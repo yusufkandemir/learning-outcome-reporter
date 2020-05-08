@@ -51,6 +51,14 @@
 
             <q-item-section>Course Information</q-item-section>
           </q-item>
+
+          <q-item to="/import_excel" clickable v-ripple>
+            <q-item-section avatar>
+              <q-icon name="mdi-microsoft-excel"></q-icon>
+            </q-item-section>
+
+            <q-item-section>Import Excel</q-item-section>
+          </q-item>
         </q-list>
       </q-scroll-area>
     </q-drawer>
