@@ -89,6 +89,7 @@
                     type="number"
                     filled
                     :label="worksheet.name"
+                    @input="value => refreshOptions(worksheet.name, value)"
                   />
                 </div>
               </div>
@@ -106,9 +107,10 @@
                     filled
                     v-model="worksheetToFieldMapping[worksheet.name].columns[column.key]"
                     :label="column.header"
-                    :options="fieldsToMap"
+                    :options="fieldsToMap[worksheet.name]"
                     emit-value
                     map-options
+                    :loading="optionsLoading"
                   />
                 </div>
               </div>
@@ -142,6 +144,7 @@
 import { defineComponent, ref, reactive } from '@vue/composition-api'
 
 import OCrudTable from '../components/OCrudTable'
+import { ODataApiService } from '../services/ApiService'
 
 export default defineComponent({
   name: 'EditCoursePage',
@@ -181,7 +184,7 @@ export default defineComponent({
     ])
 
     // worksheetToFieldMapping.worksheets[worksheet.name].tasks[task.number]
-    const { worksheetToFieldMapping, fieldsToMap } = createMappings(worksheets.value)
+    const { worksheetToFieldMapping, fieldsToMap, baseFieldsToMap } = createMappings(worksheets.value)
 
     const form = reactive({
       CourseInfoId: null,
@@ -190,6 +193,28 @@ export default defineComponent({
 
     const onFileInput = () => {
       //
+    }
+
+    const optionsLoading = ref(false)
+
+    const refreshOptions = async (worksheetName, assignmentId) => {
+      const assignmentTaskService = new ODataApiService(`/api/Course/${form.CourseId}/Assignments/${assignmentId}/AssignmentTasks`)
+
+      optionsLoading.value = true
+
+      const assignmentTasks = await assignmentTaskService.getAll({ startRow: 0, count: 100 })
+
+      const extraFieldsToMap = assignmentTasks.items.map(assignmentTask => ({
+        label: `Task #${assignmentTask.Number} - ${assignmentTask.Weight}`,
+        value: assignmentTask.Id
+      }))
+
+      fieldsToMap[worksheetName] = [
+        ...baseFieldsToMap,
+        ...extraFieldsToMap
+      ]
+
+      optionsLoading.value = false
     }
 
     return {
@@ -204,18 +229,21 @@ export default defineComponent({
 
       worksheets,
       worksheetToFieldMapping,
-      fieldsToMap
+      fieldsToMap,
+      refreshOptions,
+      optionsLoading
     }
   }
 })
 
 function createMappings (worksheets) {
-  // TODO: Fetch assignmentTasks related with assignmentId, then add them to this array
-  const fieldsToMap = ref([
+  const baseFieldsToMap = [
     { label: 'Do not map', value: 'none' },
     { label: 'Student Id', value: 'studentId' },
     { label: 'Student Name', value: 'studentName' }
-  ])
+  ]
+
+  const fieldsToMap = {}
 
   const worksheetToFieldMapping = {}
 
@@ -227,11 +255,14 @@ function createMappings (worksheets) {
 
     worksheet.columns.forEach(column => {
       worksheetToFieldMapping[worksheet.name].columns[column.key] = 'none'
+
+      fieldsToMap[worksheet.name] = []
     })
   }
 
   return {
-    fieldsToMap,
+    baseFieldsToMap,
+    fieldsToMap: reactive(fieldsToMap),
     worksheetToFieldMapping: reactive(worksheetToFieldMapping)
   }
 }
