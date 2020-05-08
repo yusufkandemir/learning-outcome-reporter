@@ -11,7 +11,7 @@
             <div class="col-12 col-sm-6">
               <q-input
                 filled
-                v-model.number="excelImport.form.CourseInfoId"
+                v-model.number="form.CourseInfoId"
                 label="Course Info Id"
                 type="number"
                 min="0"
@@ -21,7 +21,7 @@
             <div class="col-12 col-sm-6">
               <q-input
                 filled
-                v-model.number="excelImport.form.CourseId"
+                v-model.number="form.CourseId"
                 label="Course Id"
                 type="number"
                 min="0"
@@ -56,7 +56,7 @@
               class="excel-file-picker"
               label="Pick a spreadsheet file"
               accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-              @input="excelImport.onFileInput"
+              @input="onFileInput"
             >
               <template v-slot:prepend>
                 <q-icon name="mdi-cloud-upload" />
@@ -157,8 +157,6 @@ export default defineComponent({
       //
     }
 
-    const excelImport = useExcelImport()
-
     const worksheets = ref([
       {
         name: 'Midterm',
@@ -184,6 +182,15 @@ export default defineComponent({
     // worksheetToFieldMapping.worksheets[worksheet.name].tasks[task.number]
     const { worksheetToFieldMapping, fieldsToMap } = createMappings(worksheets.value)
 
+    const form = reactive({
+      CourseInfoId: null,
+      CourseId: null
+    })
+
+    const onFileInput = () => {
+      //
+    }
+
     return {
       step,
       loading,
@@ -191,7 +198,8 @@ export default defineComponent({
       file,
       submit,
 
-      excelImport: ref(excelImport),
+      form,
+      onFileInput,
 
       worksheets,
       worksheetToFieldMapping,
@@ -224,30 +232,6 @@ function createMappings (worksheets) {
   return {
     fieldsToMap,
     worksheetToFieldMapping: reactive(worksheetToFieldMapping)
-  }
-}
-
-function useExcelImport () {
-  const dialog = ref(false)
-
-  const form = reactive({
-    CourseInfoId: 0,
-    CourseId: 0
-  })
-
-  const onFileInput = value => {
-    console.log(value)
-  }
-
-  const onSave = () => {
-    console.log('Saved', form)
-  }
-
-  return {
-    dialog,
-    form,
-    onFileInput,
-    onSave
   }
 }
 </script>
