@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNet.OData.Extensions;
 using Microsoft.OData.Edm;
 using Microsoft.AspNet.OData.Builder;
-
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using server.Models;
 
 namespace server
@@ -32,7 +32,7 @@ namespace server
         {
             services.AddOData();
 
-            services.AddMvc(option => option.EnableEndpointRouting = false);
+            services.AddMvc(option => option.EnableEndpointRouting = false).AddNewtonsoftJson();
 
             services.AddDbContext<OutcomeReportingContext>(options => options.UseSqlServer("Name=OutcomeReportingContext"));
         }
@@ -62,10 +62,12 @@ namespace server
             app.UseMvc(routeBuilder =>
             {
                 routeBuilder.EnableDependencyInjection();
-        
+
                 routeBuilder.Expand().Select().OrderBy().Filter().MaxTop(null).Count();
 
                 routeBuilder.MapODataServiceRoute("odataroute", "api", GetEdmModel());
+
+                routeBuilder.MapRoute("ImportExcel", "api/ImportExcel");
             });
 
             app.UseHttpsRedirection();
