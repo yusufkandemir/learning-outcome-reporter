@@ -66,7 +66,7 @@
 
             <q-stepper-navigation class="flex justify-end">
               <q-btn
-                @click="step = 2"
+                @click="handleFilePick"
                 color="primary"
                 label="Continue"
                 :disabled="file === null || form.CourseId == null"
@@ -101,12 +101,12 @@
                 <div
                   class="col-6 col-sm-4 col-md-3"
                   v-for="column in worksheet.columns"
-                  :key="column.key"
+                  :key="column"
                 >
                   <q-select
                     filled
-                    v-model="worksheetToFieldMapping[worksheet.name].columns[column.key]"
-                    :label="column.header"
+                    v-model="worksheetToFieldMapping[worksheet.name].columns[column]"
+                    :label="column"
                     :options="fieldsToMap[worksheet.name]"
                     emit-value
                     map-options
@@ -123,7 +123,7 @@
             <q-stepper-navigation class="flex justify-end">
               <q-btn flat @click="step = 1" color="primary" label="Back" class="q-mr-sm" />
 
-              <q-btn @click="step = 3" color="primary" label="Continue" />
+              <q-btn @click="finishMapping" color="primary" label="Continue" />
             </q-stepper-navigation>
           </q-step>
 
@@ -141,7 +141,9 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive } from '@vue/composition-api'
+import Vue from 'vue'
+import { defineComponent, ref, reactive, computed } from '@vue/composition-api'
+import { Workbook } from 'exceljs'
 
 import OCrudTable from '../components/OCrudTable'
 import { ODataApiService } from '../services/ApiService'
@@ -161,30 +163,10 @@ export default defineComponent({
       //
     }
 
-    const worksheets = ref([
-      {
-        name: 'Midterm',
-        columns: [
-          { header: 'Student Id', key: 'id' },
-          { header: 'Student Name', key: 'name' },
-          { header: 'Q1', key: 'q1' },
-          { header: 'Q2', key: 'q2' }
-        ]
-      },
-      {
-        name: 'Final',
-        columns: [
-          { header: 'Student Id', key: 'id' },
-          { header: 'Student Name', key: 'name' },
-          { header: 'Q1', key: 'q1' },
-          { header: 'Q2', key: 'q2' },
-          { header: 'Q3', key: 'q3' }
-        ]
-      }
-    ])
+    const worksheets = ref([])
 
     // worksheetToFieldMapping.worksheets[worksheet.name].tasks[task.number]
-    const { worksheetToFieldMapping, fieldsToMap, baseFieldsToMap } = createMappings(worksheets.value)
+    const { worksheetToFieldMapping, fieldsToMap, baseFieldsToMap } = createMappings(worksheets)
 
     const form = reactive({
       CourseInfoId: null,
@@ -217,6 +199,77 @@ export default defineComponent({
       optionsLoading.value = false
     }
 
+    const { loadFile } = useExcel()
+
+    const handleFilePick = async () => {
+      const data = await loadFile(file.value)
+
+      worksheets.value = [...data]
+
+      step.value = 2
+    }
+
+    const finishMapping = () => {
+      const payload = {
+        courseId: form.CourseId,
+        studentResults: {
+          // '1700001234': {
+          //   name: 'John Doe',
+          //   assignmentTaskResults: {
+          //     // assignmentId : results
+          //     0: {
+          //       // assignmentTaskId : grade
+          //       1: 100,
+          //       5: 76
+          //     },
+          //     1: {
+          //       1: 85,
+          //       2: 71
+          //     }
+          //   }
+          // }
+        }
+      }
+
+      Object.entries(worksheetToFieldMapping.value).forEach(([worksheetName, worksheetMapping]) => {
+        const worksheet = worksheets.value.find(x => x.name === worksheetName)
+        const { assignmentId, columns } = worksheetMapping
+
+        const reverseMapping = {}
+
+        for (const [column, property] of Object.entries(columns)) {
+          const index = worksheet.columns.indexOf(column)
+
+          reverseMapping[property] = index
+        }
+
+        worksheet.values.forEach(row => {
+          const studentId = row[reverseMapping.studentId]
+          const studentName = row[reverseMapping.studentName]
+
+          if (payload.studentResults[studentId] === undefined) {
+            payload.studentResults[studentId] = {
+              name: studentName,
+              assignmentTaskResults: {}
+            }
+          }
+
+          const assignmentTaskResults = {}
+
+          for (const [property, columnIndex] of Object.entries(reverseMapping)) {
+            // assignmentTaskId
+            if (!isNaN(Number(property))) {
+              assignmentTaskResults[property] = row[columnIndex]
+            }
+          }
+
+          payload.studentResults[studentId].assignmentTaskResults[assignmentId] = assignmentTaskResults
+        })
+      })
+
+      console.log(payload)
+    }
+
     return {
       step,
       loading,
@@ -231,7 +284,10 @@ export default defineComponent({
       worksheetToFieldMapping,
       fieldsToMap,
       refreshOptions,
-      optionsLoading
+      optionsLoading,
+
+      handleFilePick,
+      finishMapping
     }
   }
 })
@@ -243,27 +299,59 @@ function createMappings (worksheets) {
     { label: 'Student Name', value: 'studentName' }
   ]
 
-  const fieldsToMap = {}
+  const fieldsToMap = reactive({})
 
-  const worksheetToFieldMapping = {}
+  const worksheetToFieldMapping = computed(() => {
+    const mapping = reactive({})
 
-  for (const worksheet of worksheets) {
-    worksheetToFieldMapping[worksheet.name] = {
-      assignmentId: null,
-      columns: {}
+    for (const worksheet of worksheets.value) {
+      Vue.set(mapping, worksheet.name, {
+        assignmentId: null,
+        columns: {}
+      })
+
+      worksheet.columns.forEach(column => {
+        Vue.set(mapping[worksheet.name].columns, column, 'none')
+
+        fieldsToMap[worksheet.name] = []
+      })
     }
 
-    worksheet.columns.forEach(column => {
-      worksheetToFieldMapping[worksheet.name].columns[column.key] = 'none'
-
-      fieldsToMap[worksheet.name] = []
-    })
-  }
+    return mapping
+  })
 
   return {
     baseFieldsToMap,
-    fieldsToMap: reactive(fieldsToMap),
-    worksheetToFieldMapping: reactive(worksheetToFieldMapping)
+    fieldsToMap,
+    worksheetToFieldMapping
+  }
+}
+
+function useExcel () {
+  const loadFile = async (file) => {
+    const arrayBuffer = await file.arrayBuffer()
+
+    const workbook = new Workbook()
+    await workbook.xlsx.load(arrayBuffer)
+
+    const results = []
+
+    workbook.eachSheet(sheet => {
+      const name = sheet.name
+      const [, columns, ...values] = sheet.getSheetValues().map(row => row.slice(1))
+
+      results.push({
+        name,
+        columns,
+        values
+      })
+    })
+
+    return results
+  }
+
+  return {
+    loadFile
   }
 }
 </script>
