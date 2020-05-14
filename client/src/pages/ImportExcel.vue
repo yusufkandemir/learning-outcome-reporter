@@ -238,7 +238,15 @@ export default defineComponent({
         const reverseMapping = {}
 
         for (const [column, property] of Object.entries(columns)) {
+          if (property === 'none') {
+            continue
+          }
+
           reverseMapping[property] = column
+        }
+
+        if (Object.keys(reverseMapping).length === 0) {
+          continue
         }
 
         worksheet.values.forEach(value => {
@@ -256,7 +264,7 @@ export default defineComponent({
 
           for (const [property, column] of Object.entries(reverseMapping)) {
             // assignmentTaskId
-            if (property !== 'studentId' && property !== 'studentName' && property !== 'none') {
+            if (property !== 'studentId' && property !== 'studentName') {
               assignmentTaskResults[property] = value[column]
             }
           }
