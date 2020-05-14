@@ -231,21 +231,19 @@ export default defineComponent({
         }
       }
 
-      Object.entries(worksheetToFieldMapping.value).forEach(([worksheetName, worksheetMapping]) => {
+      for (const [worksheetName, worksheetMapping] of Object.entries(worksheetToFieldMapping.value)) {
         const worksheet = worksheets.value.find(x => x.name === worksheetName)
         const { assignmentId, columns } = worksheetMapping
 
         const reverseMapping = {}
 
         for (const [column, property] of Object.entries(columns)) {
-          const index = worksheet.columns.indexOf(column)
-
-          reverseMapping[property] = index
+          reverseMapping[property] = column
         }
 
-        worksheet.values.forEach(row => {
-          const studentId = row[reverseMapping.studentId]
-          const studentName = row[reverseMapping.studentName]
+        worksheet.values.forEach(value => {
+          const studentId = value[reverseMapping.studentId]
+          const studentName = value[reverseMapping.studentName]
 
           if (payload.studentResults[studentId] === undefined) {
             payload.studentResults[studentId] = {
@@ -256,16 +254,16 @@ export default defineComponent({
 
           const assignmentTaskResults = {}
 
-          for (const [property, columnIndex] of Object.entries(reverseMapping)) {
+          for (const [property, column] of Object.entries(reverseMapping)) {
             // assignmentTaskId
-            if (!isNaN(Number(property))) {
-              assignmentTaskResults[property] = row[columnIndex]
+            if (property !== 'studentId' && property !== 'studentName' && property !== 'none') {
+              assignmentTaskResults[property] = value[column]
             }
           }
 
           payload.studentResults[studentId].assignmentTaskResults[assignmentId] = assignmentTaskResults
         })
-      })
+      }
 
       console.log(payload)
     }
@@ -338,7 +336,17 @@ function useExcel () {
 
     workbook.eachSheet(sheet => {
       const name = sheet.name
-      const [, columns, ...values] = sheet.getSheetValues().map(row => row.slice(1))
+      const [, columns, ...rows] = sheet.getSheetValues().map(row => row.slice(1))
+
+      const values = []
+      for (const row of rows) {
+        const value = {}
+        for (const [index, column] of columns.entries()) {
+          value[column] = row[index]
+        }
+
+        values.push(value)
+      }
 
       results.push({
         name,
