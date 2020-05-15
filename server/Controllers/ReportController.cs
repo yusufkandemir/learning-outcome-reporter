@@ -84,7 +84,7 @@ namespace server.Controllers
 
             var results = new List<ResultPair>();
 
-            foreach (var result in grades)
+            foreach (var result in grades.OrderBy(x => x.Key))
             {
                 var totalCredits = credits[result.Key].Sum(x => x.Value);
 
