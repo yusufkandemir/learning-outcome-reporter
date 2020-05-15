@@ -5,32 +5,16 @@
 </template>
 
 <script>
-import { defineComponent, ref } from '@vue/composition-api'
+import { defineComponent, ref, onMounted } from '@vue/composition-api'
+import axios from 'axios'
 
 export default defineComponent({
   name: 'ReportPage',
   setup (props, context) {
+    const data = ref([])
     const series = ref([{
       name: 'Avg. Performance',
-      data: [{
-        x: '1',
-        y: 44
-      }, {
-        x: '2',
-        y: 51
-      },
-      {
-        x: '3',
-        y: 51
-      },
-      {
-        x: '4',
-        y: 51
-      },
-      {
-        x: '5',
-        y: 51
-      }]
+      data: data.value
     }])
 
     const options = {
@@ -80,6 +64,12 @@ export default defineComponent({
         mode: 'dark'
       }
     }
+
+    onMounted(async () => {
+      const { data } = await axios.get('/api/Reports/Department?DepartmentId=1&Semester=Spring&Year=2019')
+
+      data.value = data.results
+    })
 
     return {
       series,
