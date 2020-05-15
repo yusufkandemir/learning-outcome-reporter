@@ -14,6 +14,7 @@
 <script>
 import { defineComponent, ref, onMounted } from '@vue/composition-api'
 import axios from 'axios'
+import { Notify } from 'quasar'
 
 export default defineComponent({
   name: 'ReportPage',
@@ -76,14 +77,22 @@ export default defineComponent({
     onMounted(async () => {
       loading.value = true
 
-      const response = await axios.get('/api/Reports/Department?DepartmentId=1&Semester=Fall&Year=2020')
+      try {
+        const response = await axios.get('/api/Reports/Department?DepartmentId=1&Semester=Fall&Year=2020')
 
-      loading.value = false
-
-      series.value = [{
-        name: 'Avg. Performance',
-        data: response.data.results
-      }]
+        series.value = [{
+          name: 'Avg. Performance',
+          data: response.data.results
+        }]
+      } catch (error) {
+        Notify.create({
+          type: 'negative',
+          message: 'An error occured while fetching the report data',
+          caption: error.message
+        })
+      } finally {
+        loading.value = false
+      }
     })
 
     return {
