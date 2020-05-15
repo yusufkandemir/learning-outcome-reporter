@@ -147,6 +147,8 @@
           </q-step>
 
           <q-step :name="3" title="Finalize" icon="mdi-file-find" :header-nav="step > 3">
+            <div>Press finish to import the data, it can take a while</div>
+
             <q-stepper-navigation class="flex justify-end">
               <q-btn flat @click="step = 2" color="primary" label="Back" class="q-mr-sm" />
 
@@ -167,6 +169,9 @@ import { Workbook } from 'exceljs'
 import OCrudTable from '../components/OCrudTable'
 import { ODataApiService } from '../services/ApiService'
 
+import axios from 'axios'
+import { Notify, Loading, QSpinnerGears } from 'quasar'
+
 export default defineComponent({
   name: 'EditCoursePage',
   components: {
@@ -177,10 +182,6 @@ export default defineComponent({
     const step = ref(1)
 
     const file = ref(null)
-
-    const submit = () => {
-      //
-    }
 
     const worksheets = ref([])
     const worksheetOptions = ref([])
@@ -248,11 +249,13 @@ export default defineComponent({
       step.value = 2
     }
 
+    const payload = {
+      courseId: null,
+      studentResults: {}
+    }
+
     const finishMapping = () => {
-      const payload = {
-        courseId: form.CourseId,
-        studentResults: {}
-      }
+      payload.courseId = form.CourseId
 
       for (const [assignmentId, worksheetMapping] of Object.entries(fieldMapping)) {
         const { worksheetName, columns } = worksheetMapping
@@ -288,7 +291,33 @@ export default defineComponent({
         })
       }
 
-      console.log(payload)
+      step.value = 3
+    }
+
+    const submit = async () => {
+      Loading.show({
+        message: 'The data is being imported to the system. This can take a while...',
+        spinner: QSpinnerGears
+      })
+
+      try {
+        await axios.post('/api/ImportExcel', payload)
+
+        Notify.create({
+          type: 'positive',
+          message: 'Data is successfully imported'
+        })
+
+        context.root.$router.push(`/course_info/${form.CourseInfoId}/courses/${form.CourseId}`)
+      } catch (error) {
+        Notify.create({
+          type: 'negative',
+          message: 'An error occured while importing the data',
+          caption: error.message
+        })
+      } finally {
+        Loading.hide()
+      }
     }
 
     return {
