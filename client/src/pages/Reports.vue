@@ -1,7 +1,14 @@
 <template>
-  <div>
-    <apexchart width="500" type="bar" :options="options" :series="series"></apexchart>
-  </div>
+  <q-page class="flex row justify-center content-start items-center q-col-gutter-lg" padding>
+    <div class="row justify-center col-12">
+      <div class="col-6">
+        <apexchart type="bar" :options="options" :series="series"></apexchart>
+        <q-inner-loading :showing="loading">
+          <q-spinner-gears size="xl" color="primary" />
+        </q-inner-loading>
+      </div>
+    </div>
+  </q-page>
 </template>
 
 <script>
@@ -11,10 +18,11 @@ import axios from 'axios'
 export default defineComponent({
   name: 'ReportPage',
   setup (props, context) {
-    const data = ref([])
+    const loading = ref(false)
+
     const series = ref([{
       name: 'Avg. Performance',
-      data: data.value
+      data: []
     }])
 
     const options = {
@@ -66,12 +74,21 @@ export default defineComponent({
     }
 
     onMounted(async () => {
-      const { data } = await axios.get('/api/Reports/Department?DepartmentId=1&Semester=Spring&Year=2019')
+      loading.value = true
 
-      data.value = data.results
+      const response = await axios.get('/api/Reports/Department?DepartmentId=1&Semester=Fall&Year=2020')
+
+      loading.value = false
+
+      series.value = [{
+        name: 'Avg. Performance',
+        data: response.data.results
+      }]
     })
 
     return {
+      loading,
+
       series,
       options
     }
