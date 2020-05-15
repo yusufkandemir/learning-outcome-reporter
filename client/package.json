@@ -16,6 +16,7 @@
     "@vue/composition-api": "^0.5.0",
     "apexcharts": "^3.19.0",
     "axios": "^0.18.1",
+    "exceljs": "^3.9.0",
     "quasar": "^1.10.5",
     "vue-apexcharts": "^1.5.3"
   },

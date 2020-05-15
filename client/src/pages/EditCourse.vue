@@ -1,5 +1,16 @@
 <template>
   <q-page class="flex row justify-center content-start items-center q-col-gutter-lg" padding>
+    <div class="row justify-center col-12 q-mb-lg">
+      <q-toolbar class="bg-grey-10 q-pa-sm">
+        <q-space />
+
+        <!-- TODO: Redirect to the import page with required parameters to provide a shortcut to form -->
+        <q-btn color="primary" to="/import_excel">
+          <q-icon name="mdi-microsoft-excel" left />Import Excel
+        </q-btn>
+      </q-toolbar>
+    </div>
+
     <div class="row justify-center col-12 col-lg-4">
       <div class="col-12">
         <q-card class="q-pa-sm">
