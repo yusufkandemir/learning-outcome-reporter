@@ -41,7 +41,6 @@
 import { defineComponent, ref, reactive, computed, watch } from '@vue/composition-api'
 
 import OCrudTable from '../components/OCrudTable'
-import { ODataApiService } from '../services/ApiService'
 
 export default defineComponent({
   name: 'OEntitySelector',
@@ -49,21 +48,20 @@ export default defineComponent({
     OCrudTable
   },
   props: {
-    value: [Object, Array]
+    value: [Object, Array],
+    columns: {
+      required: true,
+      type: Array
+    },
+    entity: {
+      required: true,
+      type: Object
+    }
   },
   setup (props, context) {
     const isOpen = ref(false)
 
     const items = ref([])
-    const columns = ref([
-      {
-        name: 'name',
-        label: 'Name',
-        field: 'Name',
-        sortable: true,
-        searchable: true
-      }
-    ])
     const pagination = reactive({
       page: 1,
       sortBy: 'name',
@@ -71,22 +69,6 @@ export default defineComponent({
       rowsPerPage: context.root.$q.screen.xs ? 12 : 24,
       rowsNumber: 0
     })
-
-    const departmentService = new ODataApiService('/api/Department')
-
-    const entity = {
-      key: 'Id',
-      name: 'Department',
-      displayName: (plural = false) => `Department${plural ? 's' : ''}`,
-      route: (key = '') => `/departments/${key}`,
-      service: departmentService,
-      defaultValue () {
-        return {
-          Id: 0,
-          Name: ''
-        }
-      }
-    }
 
     const actionConfig = {
       create: {
@@ -116,9 +98,7 @@ export default defineComponent({
       isOpen,
 
       items,
-      columns,
       pagination,
-      entity,
       actionConfig,
 
       selected,
