@@ -57,7 +57,7 @@ namespace server.Models
             {
                 entity.ToTable("assignment_task_outcome");
 
-                entity.Property(e => e.Id).HasColumnName("id");
+                entity.HasKey(e => new { e.AssignmentTaskId, e.OutcomeId });
 
                 entity.Property(e => e.AssignmentTaskId).HasColumnName("assignment_task_id");
 
