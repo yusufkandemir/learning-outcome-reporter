@@ -8,13 +8,13 @@
           </q-card-section>
 
           <q-card-section>
-            <q-input
-              v-model.number="form.departmentId"
-              label="Deparment Id"
-              type="number"
-              min="1"
-              :loading="loading"
-            ></q-input>
+            <o-entity-selector
+              v-model="form.department"
+              :columns="department.columns"
+              :entity="department.entity"
+              :display="model => model.Name"
+            />
+
             <q-select v-model="form.semester" :options="semesters" label="Semester" />
             <q-input v-model.number="form.year" label="Year" type="number"></q-input>
           </q-card-section>
@@ -42,8 +42,14 @@ import { defineComponent, ref, reactive } from '@vue/composition-api'
 import axios from 'axios'
 import { Notify } from 'quasar'
 
+import OEntitySelector from '../components/OEntitySelector'
+import { ODataApiService } from '../services/ApiService'
+
 export default defineComponent({
   name: 'ReportPage',
+  components: {
+    OEntitySelector
+  },
   setup (props, context) {
     const loading = ref(false)
 
@@ -102,7 +108,7 @@ export default defineComponent({
     }
 
     const form = reactive({
-      departmentId: null,
+      department: null,
       semester: null,
       year: null
     })
@@ -112,7 +118,7 @@ export default defineComponent({
 
       try {
         const params = new URLSearchParams({
-          DepartmentId: form.departmentId,
+          DepartmentId: form.department.Id,
           Semester: form.semester,
           Year: form.year
         })
@@ -140,6 +146,8 @@ export default defineComponent({
 
     const semesters = ['Fall', 'Spring', 'Summer']
 
+    const department = useDepartmentSelector()
+
     return {
       loading,
 
@@ -149,8 +157,43 @@ export default defineComponent({
 
       form,
       semesters,
-      onGenerate
+      onGenerate,
+
+      department: ref(department)
     }
   }
 })
+
+function useDepartmentSelector () {
+  const columns = ref([
+    {
+      name: 'name',
+      label: 'Name',
+      field: 'Name',
+      sortable: true,
+      searchable: true
+    }
+  ])
+
+  const departmentService = new ODataApiService('/api/Department')
+
+  const entity = {
+    key: 'Id',
+    name: 'Department',
+    displayName: (plural = false) => `Department${plural ? 's' : ''}`,
+    route: (key = '') => `/departments/${key}`,
+    service: departmentService,
+    defaultValue () {
+      return {
+        Id: 0,
+        Name: ''
+      }
+    }
+  }
+
+  return {
+    columns,
+    entity
+  }
+}
 </script>
