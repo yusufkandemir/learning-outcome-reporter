@@ -5,6 +5,7 @@
       readonly
       use-chips
       multiple
+      hide-dropdown-icon
       :label="entity.displayName(multiple)"
     >
       <template v-slot:append>
