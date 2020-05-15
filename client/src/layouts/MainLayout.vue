@@ -59,6 +59,14 @@
 
             <q-item-section>Import Excel</q-item-section>
           </q-item>
+
+          <q-item to="/reports" clickable v-ripple>
+            <q-item-section avatar>
+              <q-icon name="mdi-file-chart"></q-icon>
+            </q-item-section>
+
+            <q-item-section>Reports</q-item-section>
+          </q-item>
         </q-list>
       </q-scroll-area>
     </q-drawer>
