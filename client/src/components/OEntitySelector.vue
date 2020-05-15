@@ -1,6 +1,12 @@
 <template>
   <div>
-    <q-select v-model="selectedModel" readonly use-chips multiple label="Department">
+    <q-select
+      v-model="selectedModel"
+      readonly
+      use-chips
+      multiple
+      :label="entity.displayName(multiple)"
+    >
       <template v-slot:append>
         <q-icon name="mdi-selection-search" class="cursor-pointer" @click="isOpen = true" />
       </template>
@@ -9,10 +15,10 @@
         <div v-if="selectedModel">
           <q-chip
             v-for="model in selectedModel"
-            :key="model.Id"
+            :key="model[entity.Key]"
             color="grey-9"
             text-color="white"
-          >{{ model.Name }}</q-chip>
+          >{{ display(model) }}</q-chip>
         </div>
       </template>
     </q-select>
@@ -60,6 +66,12 @@ export default defineComponent({
     multiple: {
       type: Boolean,
       default: false
+    },
+    display: {
+      type: Function,
+      default (model) {
+        return model[this.entity.key]
+      }
     }
   },
   setup (props, context) {

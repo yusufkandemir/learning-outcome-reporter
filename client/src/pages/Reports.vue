@@ -12,6 +12,7 @@
               v-model="form.department"
               :columns="department.columns"
               :entity="department.entity"
+              :display="model => model.Name"
             />
 
             <q-select v-model="form.semester" :options="semesters" label="Semester" />
