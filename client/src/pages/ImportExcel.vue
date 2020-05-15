@@ -98,16 +98,38 @@
                 class="row col-12 q-col-gutter-xs q-pa-sm"
                 v-if="worksheetToFieldMapping[worksheet.name].assignmentId !== null"
               >
+                <div class="col-6 col-sm-4 col-md-3">
+                  <q-select
+                    filled
+                    v-model="worksheetToFieldMapping[worksheet.name].columns.studentId"
+                    label="Student Id"
+                    :options="columnsToMap[worksheet.name]"
+                    emit-value
+                    map-options
+                    :loading="optionsLoading"
+                  />
+                </div>
+                <div class="col-6 col-sm-4 col-md-3">
+                  <q-select
+                    filled
+                    v-model="worksheetToFieldMapping[worksheet.name].columns.studentName"
+                    label="Student Name"
+                    :options="columnsToMap[worksheet.name]"
+                    emit-value
+                    map-options
+                    :loading="optionsLoading"
+                  />
+                </div>
                 <div
                   class="col-6 col-sm-4 col-md-3"
-                  v-for="column in worksheet.columns"
-                  :key="column"
+                  v-for="field in taskFieldsToMap[worksheet.name]"
+                  :key="field.value"
                 >
                   <q-select
                     filled
-                    v-model="worksheetToFieldMapping[worksheet.name].columns[column]"
-                    :label="column"
-                    :options="fieldsToMap[worksheet.name]"
+                    v-model="worksheetToFieldMapping[worksheet.name].columns.tasks[field.value]"
+                    :label="field.label"
+                    :options="columnsToMap[worksheet.name]"
                     emit-value
                     map-options
                     :loading="optionsLoading"
@@ -164,9 +186,11 @@ export default defineComponent({
     }
 
     const worksheets = ref([])
+    const columnsToMap = reactive({})
+    const taskFieldsToMap = reactive({})
 
     // worksheetToFieldMapping.worksheets[worksheet.name].tasks[task.number]
-    const { worksheetToFieldMapping, fieldsToMap, baseFieldsToMap } = createMappings(worksheets)
+    const { worksheetToFieldMapping } = createMappings(worksheets)
 
     const form = reactive({
       CourseInfoId: null,
@@ -191,10 +215,11 @@ export default defineComponent({
         value: assignmentTask.Id
       }))
 
-      fieldsToMap[worksheetName] = [
-        ...baseFieldsToMap,
-        ...extraFieldsToMap
-      ]
+      taskFieldsToMap[worksheetName] = [...extraFieldsToMap]
+
+      for (const taskField of taskFieldsToMap[worksheetName]) {
+        Vue.set(worksheetToFieldMapping.value[worksheetName].columns.tasks, taskField.value, 'none')
+      }
 
       optionsLoading.value = false
     }
@@ -206,52 +231,33 @@ export default defineComponent({
 
       worksheets.value = [...data]
 
+      for (const worksheet of worksheets.value) {
+        columnsToMap[worksheet.name] = [
+          { label: 'Do not map', value: 'none' },
+          ...worksheet.columns
+        ]
+      }
+
       step.value = 2
     }
 
     const finishMapping = () => {
       const payload = {
         courseId: form.CourseId,
-        studentResults: {
-          // '1700001234': {
-          //   name: 'John Doe',
-          //   assignmentTaskResults: {
-          //     // assignmentId : results
-          //     0: {
-          //       // assignmentTaskId : grade
-          //       1: 100,
-          //       5: 76
-          //     },
-          //     1: {
-          //       1: 85,
-          //       2: 71
-          //     }
-          //   }
-          // }
-        }
+        studentResults: {}
       }
 
       for (const [worksheetName, worksheetMapping] of Object.entries(worksheetToFieldMapping.value)) {
         const worksheet = worksheets.value.find(x => x.name === worksheetName)
         const { assignmentId, columns } = worksheetMapping
 
-        const reverseMapping = {}
-
-        for (const [column, property] of Object.entries(columns)) {
-          if (property === 'none') {
-            continue
-          }
-
-          reverseMapping[property] = column
-        }
-
-        if (Object.keys(reverseMapping).length === 0) {
+        if (columns.studentId === 'none' || columns.studentName === 'none') {
           continue
         }
 
         worksheet.values.forEach(value => {
-          const studentId = value[reverseMapping.studentId]
-          const studentName = value[reverseMapping.studentName]
+          const studentId = value[columns.studentId]
+          const studentName = value[columns.studentName]
 
           if (payload.studentResults[studentId] === undefined) {
             payload.studentResults[studentId] = {
@@ -262,11 +268,13 @@ export default defineComponent({
 
           const assignmentTaskResults = {}
 
-          for (const [property, column] of Object.entries(reverseMapping)) {
-            // assignmentTaskId
-            if (property !== 'studentId' && property !== 'studentName') {
-              assignmentTaskResults[property] = value[column]
+          for (const [assignmentTaskId, column] of Object.entries(columns.tasks)) {
+            if (column === 'none') {
+              continue
             }
+
+            const grade = value[column]
+            assignmentTaskResults[assignmentTaskId] = grade
           }
 
           payload.studentResults[studentId].assignmentTaskResults[assignmentId] = assignmentTaskResults
@@ -288,7 +296,8 @@ export default defineComponent({
 
       worksheets,
       worksheetToFieldMapping,
-      fieldsToMap,
+      columnsToMap,
+      taskFieldsToMap,
       refreshOptions,
       optionsLoading,
 
@@ -299,27 +308,17 @@ export default defineComponent({
 })
 
 function createMappings (worksheets) {
-  const baseFieldsToMap = [
-    { label: 'Do not map', value: 'none' },
-    { label: 'Student Id', value: 'studentId' },
-    { label: 'Student Name', value: 'studentName' }
-  ]
-
-  const fieldsToMap = reactive({})
-
   const worksheetToFieldMapping = computed(() => {
     const mapping = reactive({})
 
     for (const worksheet of worksheets.value) {
       Vue.set(mapping, worksheet.name, {
         assignmentId: null,
-        columns: {}
-      })
-
-      worksheet.columns.forEach(column => {
-        Vue.set(mapping[worksheet.name].columns, column, 'none')
-
-        fieldsToMap[worksheet.name] = []
+        columns: {
+          studentId: 'none',
+          studentName: 'none',
+          tasks: {}
+        }
       })
     }
 
@@ -327,8 +326,6 @@ function createMappings (worksheets) {
   })
 
   return {
-    baseFieldsToMap,
-    fieldsToMap,
     worksheetToFieldMapping
   }
 }
