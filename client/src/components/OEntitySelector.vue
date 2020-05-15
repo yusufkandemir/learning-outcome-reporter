@@ -72,6 +72,16 @@ export default defineComponent({
       default (model) {
         return model[this.entity.key]
       }
+    },
+    sortBy: {
+      type: Object,
+      default () {
+        return {
+          // Find first sortable column
+          field: this.columns.find(column => column.sortable).name,
+          descending: false
+        }
+      }
     }
   },
   setup (props, context) {
@@ -80,8 +90,8 @@ export default defineComponent({
     const items = ref([])
     const pagination = reactive({
       page: 1,
-      sortBy: 'name',
-      descending: false,
+      sortBy: props.sortBy.field,
+      descending: props.sortBy.descending,
       rowsPerPage: context.root.$q.screen.xs ? 12 : 24,
       rowsNumber: 0
     })
