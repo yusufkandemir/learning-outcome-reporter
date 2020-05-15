@@ -81,58 +81,56 @@
             :done="step > 2"
             :header-nav="file !== null || step > 2"
           >
-            <div class="row" v-for="worksheet in worksheets" :key="worksheet.name">
+            <div class="row" v-for="assignment in assignments" :key="assignment.Id">
               <div class="row col-12 q-mb-sm">
                 <div class="col-12 col-sm-6 col-md-4">
-                  <q-input
-                    v-model.number="worksheetToFieldMapping[worksheet.name].assignmentId"
-                    type="number"
+                  <q-select
+                    v-model.number="fieldMapping[assignment.Id].worksheetName"
                     filled
-                    :label="worksheet.name"
-                    @input="value => refreshOptions(worksheet.name, value)"
+                    :label="`${assignment.Type} #${assignment.Id} - ${assignment.Weight}`"
+                    :options="worksheetOptions"
+                    emit-value
+                    map-options
                   />
                 </div>
               </div>
 
               <div
                 class="row col-12 q-col-gutter-xs q-pa-sm"
-                v-if="worksheetToFieldMapping[worksheet.name].assignmentId !== null"
+                v-if="fieldMapping[assignment.Id].worksheetName !== 'none'"
               >
                 <div class="col-6 col-sm-4 col-md-3">
                   <q-select
                     filled
-                    v-model="worksheetToFieldMapping[worksheet.name].columns.studentId"
+                    v-model="fieldMapping[assignment.Id].columns.studentId"
                     label="Student Id"
-                    :options="columnsToMap[worksheet.name]"
+                    :options="columnsToMap[fieldMapping[assignment.Id].worksheetName]"
                     emit-value
                     map-options
-                    :loading="optionsLoading"
                   />
                 </div>
                 <div class="col-6 col-sm-4 col-md-3">
                   <q-select
                     filled
-                    v-model="worksheetToFieldMapping[worksheet.name].columns.studentName"
+                    v-model="fieldMapping[assignment.Id].columns.studentName"
                     label="Student Name"
-                    :options="columnsToMap[worksheet.name]"
+                    :options="columnsToMap[fieldMapping[assignment.Id].worksheetName]"
                     emit-value
                     map-options
-                    :loading="optionsLoading"
                   />
                 </div>
                 <div
                   class="col-6 col-sm-4 col-md-3"
-                  v-for="field in taskFieldsToMap[worksheet.name]"
+                  v-for="field in taskFieldsToMap[assignment.Id]"
                   :key="field.value"
                 >
                   <q-select
                     filled
-                    v-model="worksheetToFieldMapping[worksheet.name].columns.tasks[field.value]"
+                    v-model="fieldMapping[assignment.Id].columns.tasks[field.value]"
                     :label="field.label"
-                    :options="columnsToMap[worksheet.name]"
+                    :options="columnsToMap[fieldMapping[assignment.Id].worksheetName]"
                     emit-value
                     map-options
-                    :loading="optionsLoading"
                   />
                 </div>
               </div>
@@ -164,7 +162,7 @@
 
 <script>
 import Vue from 'vue'
-import { defineComponent, ref, reactive, computed } from '@vue/composition-api'
+import { defineComponent, ref, reactive } from '@vue/composition-api'
 import { Workbook } from 'exceljs'
 
 import OCrudTable from '../components/OCrudTable'
@@ -186,11 +184,11 @@ export default defineComponent({
     }
 
     const worksheets = ref([])
+    const worksheetOptions = ref([])
+
+    const fieldMapping = reactive({})
     const columnsToMap = reactive({})
     const taskFieldsToMap = reactive({})
-
-    // worksheetToFieldMapping.worksheets[worksheet.name].tasks[task.number]
-    const { worksheetToFieldMapping } = createMappings(worksheets)
 
     const form = reactive({
       CourseInfoId: null,
@@ -201,28 +199,7 @@ export default defineComponent({
       //
     }
 
-    const optionsLoading = ref(false)
-
-    const refreshOptions = async (worksheetName, assignmentId) => {
-      const assignmentTaskService = new ODataApiService(`/api/Course/${form.CourseId}/Assignments/${assignmentId}/AssignmentTasks`)
-
-      optionsLoading.value = true
-
-      const assignmentTasks = await assignmentTaskService.getAll()
-
-      const extraFieldsToMap = assignmentTasks.items.map(assignmentTask => ({
-        label: `Task #${assignmentTask.Number} - ${assignmentTask.Weight}`,
-        value: assignmentTask.Id
-      }))
-
-      taskFieldsToMap[worksheetName] = [...extraFieldsToMap]
-
-      for (const taskField of taskFieldsToMap[worksheetName]) {
-        Vue.set(worksheetToFieldMapping.value[worksheetName].columns.tasks, taskField.value, 'none')
-      }
-
-      optionsLoading.value = false
-    }
+    const assignments = ref([])
 
     const { loadFile } = useExcel()
 
@@ -230,12 +207,47 @@ export default defineComponent({
       const data = await loadFile(file.value)
 
       worksheets.value = [...data]
+      worksheetOptions.value = [
+        { label: 'Do not map', value: 'none' }
+      ]
 
       for (const worksheet of worksheets.value) {
         columnsToMap[worksheet.name] = [
           { label: 'Do not map', value: 'none' },
           ...worksheet.columns
         ]
+
+        worksheetOptions.value.push(worksheet.name)
+      }
+
+      const assignmentService = new ODataApiService(`/api/Course/${form.CourseId}/Assignments`)
+      const { items } = await assignmentService.getAll({ parameters: { $expand: 'AssignmentTasks' } })
+
+      assignments.value = items
+
+      for (const assignment of assignments.value) {
+        const tasks = {}
+        for (const assignmentTask of assignment.AssignmentTasks) {
+          tasks[assignmentTask.Id] = 'none'
+
+          if (taskFieldsToMap[assignment.Id] === undefined) {
+            taskFieldsToMap[assignment.Id] = []
+          }
+
+          taskFieldsToMap[assignment.Id].push({
+            label: `Task #${assignmentTask.Number} - ${assignmentTask.Weight}`,
+            value: assignmentTask.Id
+          })
+        }
+
+        Vue.set(fieldMapping, assignment.Id, {
+          worksheetName: 'none',
+          columns: {
+            studentId: 'none',
+            studentName: 'none',
+            tasks
+          }
+        })
       }
 
       step.value = 2
@@ -247,9 +259,9 @@ export default defineComponent({
         studentResults: {}
       }
 
-      for (const [worksheetName, worksheetMapping] of Object.entries(worksheetToFieldMapping.value)) {
+      for (const [assignmentId, worksheetMapping] of Object.entries(fieldMapping)) {
+        const { worksheetName, columns } = worksheetMapping
         const worksheet = worksheets.value.find(x => x.name === worksheetName)
-        const { assignmentId, columns } = worksheetMapping
 
         if (columns.studentId === 'none' || columns.studentName === 'none') {
           continue
@@ -295,40 +307,17 @@ export default defineComponent({
       onFileInput,
 
       worksheets,
-      worksheetToFieldMapping,
+      worksheetOptions,
+      fieldMapping,
       columnsToMap,
       taskFieldsToMap,
-      refreshOptions,
-      optionsLoading,
+      assignments,
 
       handleFilePick,
       finishMapping
     }
   }
 })
-
-function createMappings (worksheets) {
-  const worksheetToFieldMapping = computed(() => {
-    const mapping = reactive({})
-
-    for (const worksheet of worksheets.value) {
-      Vue.set(mapping, worksheet.name, {
-        assignmentId: null,
-        columns: {
-          studentId: 'none',
-          studentName: 'none',
-          tasks: {}
-        }
-      })
-    }
-
-    return mapping
-  })
-
-  return {
-    worksheetToFieldMapping
-  }
-}
 
 function useExcel () {
   const loadFile = async (file) => {
