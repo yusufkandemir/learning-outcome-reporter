@@ -68,6 +68,8 @@ namespace server
                 routeBuilder.MapODataServiceRoute("odataroute", "api", GetEdmModel());
 
                 routeBuilder.MapRoute("ImportExcel", "api/ImportExcel");
+
+                routeBuilder.MapRoute("Report", "api/Reports");
             });
 
             app.UseHttpsRedirection();
