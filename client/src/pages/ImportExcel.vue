@@ -208,7 +208,7 @@ export default defineComponent({
 
       optionsLoading.value = true
 
-      const assignmentTasks = await assignmentTaskService.getAll({ startRow: 0, count: 100 })
+      const assignmentTasks = await assignmentTaskService.getAll()
 
       const extraFieldsToMap = assignmentTasks.items.map(assignmentTask => ({
         label: `Task #${assignmentTask.Number} - ${assignmentTask.Weight}`,

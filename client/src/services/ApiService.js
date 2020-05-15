@@ -15,15 +15,22 @@ export class ODataApiService {
     this.client = getClient(baseURL)
   }
 
-  async getAll ({ startRow, count, search, sortBy, descending }) {
+  async getAll ({ startRow, count, search, sortBy, descending, parameters }) {
     const params = new URLSearchParams({
-      $skip: startRow,
-      $top: count,
+      ...parameters,
       $count: true
     })
 
+    if (startRow !== undefined) {
+      params.set('$skip', startRow)
+    }
+
+    if (count !== undefined) {
+      params.set('$top', count)
+    }
+
     if (sortBy) {
-      params.append('$orderBy', `${sortBy} ${descending ? 'desc' : 'asc'}`)
+      params.set('$orderBy', `${sortBy} ${descending ? 'desc' : 'asc'}`)
     }
 
     if (search?.fields?.length > 0 && search?.term) {
