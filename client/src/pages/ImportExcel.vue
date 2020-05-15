@@ -57,7 +57,6 @@
               class="excel-file-picker"
               label="Pick a spreadsheet file"
               accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-              @input="onFileInput"
             >
               <template v-slot:prepend>
                 <q-icon name="mdi-cloud-upload" />
@@ -195,10 +194,6 @@ export default defineComponent({
       CourseId: null
     })
 
-    const onFileInput = () => {
-      //
-    }
-
     const assignments = ref([])
 
     const { loadFile } = useExcel()
@@ -304,7 +299,6 @@ export default defineComponent({
       submit,
 
       form,
-      onFileInput,
 
       worksheets,
       worksheetOptions,
