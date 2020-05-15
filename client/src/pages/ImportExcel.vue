@@ -178,7 +178,6 @@ export default defineComponent({
     OCrudTable
   },
   setup (props, context) {
-    const loading = ref(false)
     const step = ref(1)
 
     const file = ref(null)
@@ -322,7 +321,6 @@ export default defineComponent({
 
     return {
       step,
-      loading,
 
       file,
       submit,
