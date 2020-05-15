@@ -25,7 +25,7 @@
           :columns="columns"
           :pagination="pagination"
           :actions="actionConfig"
-          selection="single"
+          :selection="multiple ? 'multiple' : 'single'"
           :selected.sync="selected"
         ></o-crud-table>
 
@@ -56,6 +56,10 @@ export default defineComponent({
     entity: {
       required: true,
       type: Object
+    },
+    multiple: {
+      type: Boolean,
+      default: false
     }
   },
   setup (props, context) {
@@ -91,7 +95,7 @@ export default defineComponent({
     })
 
     watch(selectedModel, value => {
-      context.emit('input', value[0])
+      context.emit('input', props.multiple ? value : value[0])
     })
 
     return {
