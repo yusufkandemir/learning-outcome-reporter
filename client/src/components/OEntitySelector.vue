@@ -1,7 +1,7 @@
 <template>
   <div>
     <q-select
-      v-model="selectedModel"
+      v-model="selected"
       readonly
       use-chips
       multiple
@@ -13,9 +13,9 @@
       </template>
 
       <template v-slot:selected>
-        <div v-if="selectedModel">
+        <div v-if="selected">
           <q-chip
-            v-for="model in selectedModel"
+            v-for="model in selected"
             :key="model[entity.Key]"
             color="grey-9"
             text-color="white"
@@ -113,12 +113,13 @@ export default defineComponent({
     }
 
     const selected = ref([])
-    const selectedModel = computed(() => {
-      return selected.value
+
+    const model = computed(() => {
+      return props.multiple ? selected.value : selected.value[0]
     })
 
-    watch(selectedModel, value => {
-      context.emit('input', props.multiple ? value : value[0])
+    watch(model, value => {
+      context.emit('input', value)
     })
 
     return {
@@ -128,8 +129,7 @@ export default defineComponent({
       pagination,
       actionConfig,
 
-      selected,
-      selectedModel
+      selected
     }
   }
 })
