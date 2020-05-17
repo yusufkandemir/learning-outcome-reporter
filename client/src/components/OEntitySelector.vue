@@ -55,7 +55,9 @@ export default defineComponent({
     OCrudTable
   },
   props: {
-    value: [Object, Array],
+    value: {
+      required: true
+    },
     columns: {
       required: true,
       type: Array
@@ -74,6 +76,7 @@ export default defineComponent({
         return model[this.entity.key]
       }
     },
+    emitKey: Boolean,
     sortBy: {
       type: Object,
       default () {
@@ -115,7 +118,13 @@ export default defineComponent({
     const selected = ref([])
 
     const model = computed(() => {
-      return props.multiple ? selected.value : selected.value[0]
+      let values = selected.value
+
+      if (props.emitKey === true) {
+        values = values.map(value => value[props.entity.key])
+      }
+
+      return props.multiple === true ? values : values[0]
     })
 
     watch(model, value => {
