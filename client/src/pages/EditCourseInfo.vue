@@ -8,13 +8,13 @@
           </q-card-section>
 
           <q-card-section>
-            <q-input
-              v-model.number="courseInfo.DepartmentId"
-              label="Deparment Id"
-              type="number"
-              min="1"
-              :loading="loading"
-            ></q-input>
+            <o-entity-selector
+              v-model="courseInfo.DepartmentId"
+              emit-key
+              :columns="department.columns"
+              :entity="department.entity"
+              :display="model => model.Name"
+            />
             <q-input v-model="courseInfo.Name" label="Name" :loading="loading"></q-input>
             <q-input v-model="courseInfo.Code" label="Course Code" :loading="loading"></q-input>
             <q-input
@@ -72,12 +72,14 @@ import { defineComponent, ref, reactive, onMounted } from '@vue/composition-api'
 import { Notify } from 'quasar'
 
 import OCrudTable from '../components/OCrudTable'
+import OEntitySelector from '../components/OEntitySelector'
 import { ODataApiService } from '../services/ApiService'
 
 export default defineComponent({
   name: 'EditCourseInfoPage',
   components: {
-    OCrudTable
+    OCrudTable,
+    OEntitySelector
   },
   setup (props, context) {
     const courseInfoId = context.root.$route.params.id
@@ -88,16 +90,52 @@ export default defineComponent({
 
     const { loading, onUpdate, courseInfo } = useUpdateForm(courseInfoId)
 
+    const department = useDepartmentSelector()
+
     return {
       courseTable: ref(courseTable),
       learningOutcomeTable: ref(learningOutcomeTable),
 
       loading,
       onUpdate,
-      courseInfo
+      courseInfo,
+      department: ref(department)
     }
   }
 })
+
+function useDepartmentSelector () {
+  const columns = ref([
+    {
+      name: 'name',
+      label: 'Name',
+      field: 'Name',
+      sortable: true,
+      searchable: true
+    }
+  ])
+
+  const departmentService = new ODataApiService('/api/Department')
+
+  const entity = {
+    key: 'Id',
+    name: 'Department',
+    displayName: (plural = false) => `Department${plural ? 's' : ''}`,
+    route: (key = '') => `/departments/${key}`,
+    service: departmentService,
+    defaultValue () {
+      return {
+        Id: 0,
+        Name: ''
+      }
+    }
+  }
+
+  return {
+    columns,
+    entity
+  }
+}
 
 function useUpdateForm (courseInfoId) {
   const loading = ref(false)
@@ -107,7 +145,7 @@ function useUpdateForm (courseInfoId) {
     Code: '',
     Name: '',
     Credit: 1,
-    DepartmentId: 1
+    DepartmentId: null
   })
 
   const courseInfoService = new ODataApiService('/api/CourseInfo')

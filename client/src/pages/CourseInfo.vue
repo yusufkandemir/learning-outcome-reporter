@@ -3,7 +3,13 @@
     <div class="q-my-lg">
       <o-crud-table :entity="entity" :data="items" :columns="columns" :pagination="pagination">
         <template v-slot:form="{ item }">
-          <q-input v-model.number="item.DepartmentId" type="number" min="1" label="Department Id"></q-input>
+          <o-entity-selector
+            v-model="item.DepartmentId"
+            emit-key
+            :columns="department.columns"
+            :entity="department.entity"
+            :display="model => model.Name"
+          />
           <q-input v-model="item.Name" label="Name"></q-input>
           <q-input v-model="item.Code" label="Course Code"></q-input>
           <q-input v-model.number="item.Credit" type="number" min="1" label="Credit"></q-input>
@@ -17,12 +23,15 @@
 import { defineComponent, ref, reactive } from '@vue/composition-api'
 
 import OCrudTable from '../components/OCrudTable'
+import OEntitySelector from '../components/OEntitySelector'
+
 import { ODataApiService } from '../services/ApiService'
 
 export default defineComponent({
   name: 'CourseInfoPage',
   components: {
-    OCrudTable
+    OCrudTable,
+    OEntitySelector
   },
   setup (props, context) {
     const items = ref([])
@@ -78,17 +87,54 @@ export default defineComponent({
           Code: '',
           Name: '',
           Credit: 1,
-          DepartmentId: 1
+          DepartmentId: null
         }
       }
     }
+
+    const department = useDepartmentSelector()
 
     return {
       items,
       columns,
       pagination,
-      entity
+      entity,
+
+      department: ref(department)
     }
   }
 })
+
+function useDepartmentSelector () {
+  const columns = ref([
+    {
+      name: 'name',
+      label: 'Name',
+      field: 'Name',
+      sortable: true,
+      searchable: true
+    }
+  ])
+
+  const departmentService = new ODataApiService('/api/Department')
+
+  const entity = {
+    key: 'Id',
+    name: 'Department',
+    displayName: (plural = false) => `Department${plural ? 's' : ''}`,
+    route: (key = '') => `/departments/${key}`,
+    service: departmentService,
+    defaultValue () {
+      return {
+        Id: 0,
+        Name: ''
+      }
+    }
+  }
+
+  return {
+    columns,
+    entity
+  }
+}
 </script>

@@ -9,24 +9,23 @@
 
           <q-card-section class="row q-col-gutter-md">
             <div class="col-12 col-sm-6">
-              <q-input
-                filled
-                v-model.number="form.CourseInfoId"
-                label="Course Info Id"
-                type="number"
-                min="0"
-              ></q-input>
+              <o-entity-selector
+                v-model="form.courseInfoId"
+                emit-key
+                :columns="courseInfo.columns"
+                :entity="courseInfo.entity"
+                :display="model => model.Name"
+              />
             </div>
 
-            <div class="col-12 col-sm-6">
-              <q-input
-                filled
-                :disable="form.CourseInfoId == null"
-                v-model.number="form.CourseId"
-                label="Course Id"
-                type="number"
-                min="0"
-              ></q-input>
+            <div class="col-12 col-sm-6" v-if="form.courseInfoId !== null">
+              <o-entity-selector
+                v-model="form.courseId"
+                emit-key
+                :columns="course.columns"
+                :entity="course.entity"
+                :display="model => `${model.Semester} ${model.Year}`"
+              />
             </div>
           </q-card-section>
         </q-card>
@@ -68,7 +67,7 @@
                 @click="handleFilePick"
                 color="primary"
                 label="Continue"
-                :disabled="file === null || form.CourseId == null"
+                :disabled="file === null || form.courseId === null"
               />
             </q-stepper-navigation>
           </q-step>
@@ -163,10 +162,11 @@
 
 <script>
 import Vue from 'vue'
-import { defineComponent, ref, reactive } from '@vue/composition-api'
+import { defineComponent, ref, reactive, watch } from '@vue/composition-api'
 import { Workbook } from 'exceljs'
 
 import OCrudTable from '../components/OCrudTable'
+import OEntitySelector from '../components/OEntitySelector'
 import { ODataApiService } from '../services/ApiService'
 
 import axios from 'axios'
@@ -175,7 +175,8 @@ import { Notify, Loading, QSpinnerGears } from 'quasar'
 export default defineComponent({
   name: 'EditCoursePage',
   components: {
-    OCrudTable
+    OCrudTable,
+    OEntitySelector
   },
   setup (props, context) {
     const step = ref(1)
@@ -190,8 +191,8 @@ export default defineComponent({
     const taskFieldsToMap = reactive({})
 
     const form = reactive({
-      CourseInfoId: null,
-      CourseId: null
+      courseInfoId: null,
+      courseId: null
     })
 
     const assignments = ref([])
@@ -215,7 +216,7 @@ export default defineComponent({
         worksheetOptions.value.push(worksheet.name)
       }
 
-      const assignmentService = new ODataApiService(`/api/Course/${form.CourseId}/Assignments`)
+      const assignmentService = new ODataApiService(`/api/Course/${form.courseId}/Assignments`)
       const { items } = await assignmentService.getAll({ parameters: { $expand: 'AssignmentTasks' } })
 
       assignments.value = items
@@ -254,7 +255,7 @@ export default defineComponent({
     }
 
     const finishMapping = () => {
-      payload.courseId = form.CourseId
+      payload.courseId = form.courseId
 
       for (const [assignmentId, worksheetMapping] of Object.entries(fieldMapping)) {
         const { worksheetName, columns } = worksheetMapping
@@ -307,7 +308,7 @@ export default defineComponent({
           message: 'Data is successfully imported'
         })
 
-        context.root.$router.push(`/course_info/${form.CourseInfoId}/courses/${form.CourseId}`)
+        context.root.$router.push(`/course_info/${form.courseInfoId}/courses/${form.courseId}`)
       } catch (error) {
         Notify.create({
           type: 'negative',
@@ -319,6 +320,9 @@ export default defineComponent({
       }
     }
 
+    const courseInfo = useCourseInfoSelector()
+    const course = useCourseSelector(form)
+
     return {
       step,
 
@@ -326,6 +330,8 @@ export default defineComponent({
       submit,
 
       form,
+      courseInfo: ref(courseInfo),
+      course: ref(course),
 
       worksheets,
       worksheetOptions,
@@ -375,6 +381,111 @@ function useExcel () {
 
   return {
     loadFile
+  }
+}
+
+function useCourseInfoSelector () {
+  const columns = ref([
+    {
+      name: 'code',
+      label: 'Course Code',
+      field: 'Code',
+      sortable: true,
+      searchable: true
+    },
+    {
+      name: 'name',
+      label: 'Name',
+      field: 'Name',
+      sortable: true,
+      searchable: true
+    },
+    {
+      name: 'credit',
+      label: 'Credit',
+      field: 'Credit',
+      sortable: true,
+      searchable: false
+    },
+    {
+      name: 'departmentId',
+      label: 'Department Id',
+      field: 'DepartmentId',
+      sortable: true
+    }
+  ])
+
+  const courseInfoService = new ODataApiService('/api/CourseInfo/')
+
+  const entity = {
+    key: 'Id',
+    name: 'CourseInfo',
+    displayName: () => 'Course Information',
+    route: (key = '') => `/course_info/${key}`,
+    service: courseInfoService,
+    defaultValue () {
+      return {
+        Id: 0,
+        Code: '',
+        Name: '',
+        Credit: 1,
+        DepartmentId: 1
+      }
+    }
+  }
+
+  return {
+    columns,
+    entity
+  }
+}
+
+function useCourseSelector (form) {
+  const columns = ref([
+    {
+      name: 'semester',
+      label: 'Semester',
+      field: 'Semester',
+      sortable: true,
+      searchable: false
+    },
+    {
+      name: 'year',
+      label: 'Year',
+      field: 'Year',
+      sortable: true,
+      searchable: false
+    }
+  ])
+
+  const entity = reactive({
+    key: 'Id',
+    name: 'Course',
+    displayName: (plural = false) => `Course${plural ? 's' : ''}`,
+    route: (key = '') => `/course_info/${form.courseInfoId}/courses/${key}`,
+    service: null,
+    defaultValue () {
+      return {
+        Id: 0,
+        Semester: '',
+        Year: new Date().getFullYear()
+      }
+    }
+  })
+
+  watch(() => form.courseInfoId, value => {
+    if (value === undefined || value === null) {
+      return
+    }
+
+    const courseService = new ODataApiService(`/api/CourseInfo/${form.courseInfoId}/Courses`)
+
+    entity.service = courseService
+  })
+
+  return {
+    columns,
+    entity
   }
 }
 </script>

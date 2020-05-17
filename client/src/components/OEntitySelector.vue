@@ -1,7 +1,7 @@
 <template>
   <div>
     <q-select
-      v-model="selectedModel"
+      v-model="selected"
       readonly
       use-chips
       multiple
@@ -13,9 +13,9 @@
       </template>
 
       <template v-slot:selected>
-        <div v-if="selectedModel">
+        <div v-if="selected">
           <q-chip
-            v-for="model in selectedModel"
+            v-for="model in selected"
             :key="model[entity.Key]"
             color="grey-9"
             text-color="white"
@@ -33,11 +33,12 @@
           :pagination="pagination"
           :actions="actionConfig"
           :selection="multiple ? 'multiple' : 'single'"
-          :selected.sync="selected"
+          :selected.sync="internalSelected"
         ></o-crud-table>
 
-        <div class="row justify-end q-mt-sm">
-          <q-btn color="primary" label="Save" @click="isOpen = false" />
+        <div class="row justify-end q-gutter-xs q-mt-xs">
+          <q-btn label="Cancel" @click="onCancel" />
+          <q-btn color="primary" label="Save" @click="onSave" />
         </div>
       </div>
     </q-dialog>
@@ -55,7 +56,9 @@ export default defineComponent({
     OCrudTable
   },
   props: {
-    value: [Object, Array],
+    value: {
+      required: true
+    },
     columns: {
       required: true,
       type: Array
@@ -74,6 +77,7 @@ export default defineComponent({
         return model[this.entity.key]
       }
     },
+    emitKey: Boolean,
     sortBy: {
       type: Object,
       default () {
@@ -113,23 +117,54 @@ export default defineComponent({
     }
 
     const selected = ref([])
-    const selectedModel = computed(() => {
-      return selected.value
+    const internalSelected = ref([])
+
+    const model = computed(() => {
+      let values = selected.value
+
+      if (props.emitKey === true) {
+        values = values.map(value => value[props.entity.key])
+      }
+
+      return props.multiple === true ? values : (values[0] !== undefined ? values[0] : null)
     })
 
-    watch(selectedModel, value => {
-      context.emit('input', props.multiple ? value : value[0])
+    watch(model, value => {
+      context.emit('input', value)
     })
+
+    watch(() => props.value, async (value, oldValue) => {
+      const isModifiedOutside = value !== model.value
+
+      // TODO: Add support for multiple items
+      if (props.emitKey === true && props.multiple !== true && isModifiedOutside && value !== undefined && value !== null) {
+        const item = await props.entity.service.get(value)
+
+        selected.value = [item]
+      }
+    })
+
+    const onSave = () => {
+      selected.value = internalSelected.value
+      isOpen.value = false
+    }
+
+    const onCancel = () => {
+      internalSelected.value = selected.value
+      isOpen.value = false
+    }
 
     return {
       isOpen,
+      onSave,
+      onCancel,
 
       items,
       pagination,
       actionConfig,
 
       selected,
-      selectedModel
+      internalSelected
     }
   }
 })
