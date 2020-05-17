@@ -124,7 +124,7 @@ export default defineComponent({
         values = values.map(value => value[props.entity.key])
       }
 
-      return props.multiple === true ? values : values[0]
+      return props.multiple === true ? values : (values[0] !== undefined ? values[0] : null)
     })
 
     watch(model, value => {
