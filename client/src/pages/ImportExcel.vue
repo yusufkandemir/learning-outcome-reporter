@@ -10,16 +10,18 @@
           <q-card-section class="row q-col-gutter-md">
             <div class="col-12 col-sm-6">
               <o-entity-selector
-                v-model="form.courseInfo"
+                v-model="form.courseInfoId"
+                emit-key
                 :columns="courseInfo.columns"
                 :entity="courseInfo.entity"
                 :display="model => model.Name"
               />
             </div>
 
-            <div class="col-12 col-sm-6" v-if="form.courseInfo !== undefined">
+            <div class="col-12 col-sm-6" v-if="form.courseInfoId !== null">
               <o-entity-selector
-                v-model="form.course"
+                v-model="form.courseId"
+                emit-key
                 :columns="course.columns"
                 :entity="course.entity"
                 :display="model => `${model.Semester} ${model.Year}`"
@@ -65,7 +67,7 @@
                 @click="handleFilePick"
                 color="primary"
                 label="Continue"
-                :disabled="file === null || form.course.Id === undefined"
+                :disabled="file === null || form.courseId === null"
               />
             </q-stepper-navigation>
           </q-step>
@@ -189,8 +191,8 @@ export default defineComponent({
     const taskFieldsToMap = reactive({})
 
     const form = reactive({
-      courseInfo: null,
-      course: null
+      courseInfoId: null,
+      courseId: null
     })
 
     const assignments = ref([])
@@ -214,7 +216,7 @@ export default defineComponent({
         worksheetOptions.value.push(worksheet.name)
       }
 
-      const assignmentService = new ODataApiService(`/api/Course/${form.course.Id}/Assignments`)
+      const assignmentService = new ODataApiService(`/api/Course/${form.courseId}/Assignments`)
       const { items } = await assignmentService.getAll({ parameters: { $expand: 'AssignmentTasks' } })
 
       assignments.value = items
@@ -253,7 +255,7 @@ export default defineComponent({
     }
 
     const finishMapping = () => {
-      payload.courseId = form.course.Id
+      payload.courseId = form.courseId
 
       for (const [assignmentId, worksheetMapping] of Object.entries(fieldMapping)) {
         const { worksheetName, columns } = worksheetMapping
@@ -306,7 +308,7 @@ export default defineComponent({
           message: 'Data is successfully imported'
         })
 
-        context.root.$router.push(`/course_info/${form.courseInfo.Id}/courses/${form.course.Id}`)
+        context.root.$router.push(`/course_info/${form.courseInfoId}/courses/${form.courseId}`)
       } catch (error) {
         Notify.create({
           type: 'negative',
@@ -460,7 +462,7 @@ function useCourseSelector (form) {
     key: 'Id',
     name: 'Course',
     displayName: (plural = false) => `Course${plural ? 's' : ''}`,
-    route: (key = '') => `/course_info/${form.courseInfo?.Id}/courses/${key}`,
+    route: (key = '') => `/course_info/${form.courseInfoId}/courses/${key}`,
     service: null,
     defaultValue () {
       return {
@@ -471,12 +473,12 @@ function useCourseSelector (form) {
     }
   })
 
-  watch(() => form.courseInfo, value => {
+  watch(() => form.courseInfoId, value => {
     if (value === undefined || value === null) {
       return
     }
 
-    const courseService = new ODataApiService(`/api/CourseInfo/${form.courseInfo.Id}/Courses`)
+    const courseService = new ODataApiService(`/api/CourseInfo/${form.courseInfoId}/Courses`)
 
     entity.service = courseService
   })
