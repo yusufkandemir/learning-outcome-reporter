@@ -131,6 +131,17 @@ export default defineComponent({
       context.emit('input', value)
     })
 
+    watch(() => props.value, async (value, oldValue) => {
+      const isModifiedOutside = value !== model.value
+
+      // TODO: Add support for multiple items
+      if (props.emitKey === true && props.multiple !== true && isModifiedOutside && value !== undefined && value !== null) {
+        const item = await props.entity.service.get(value)
+
+        selected.value = [item]
+      }
+    })
+
     return {
       isOpen,
 
