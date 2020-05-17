@@ -33,11 +33,11 @@
           :pagination="pagination"
           :actions="actionConfig"
           :selection="multiple ? 'multiple' : 'single'"
-          :selected.sync="selected"
+          :selected.sync="internalSelected"
         ></o-crud-table>
 
         <div class="row justify-end q-mt-sm">
-          <q-btn color="primary" label="Save" @click="isOpen = false" />
+          <q-btn color="primary" label="Save" @click="onSave" />
         </div>
       </div>
     </q-dialog>
@@ -116,6 +116,7 @@ export default defineComponent({
     }
 
     const selected = ref([])
+    const internalSelected = ref([])
 
     const model = computed(() => {
       let values = selected.value
@@ -142,14 +143,21 @@ export default defineComponent({
       }
     })
 
+    const onSave = () => {
+      selected.value = internalSelected.value
+      isOpen.value = false
+    }
+
     return {
       isOpen,
+      onSave,
 
       items,
       pagination,
       actionConfig,
 
-      selected
+      selected,
+      internalSelected
     }
   }
 })
