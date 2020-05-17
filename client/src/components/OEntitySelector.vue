@@ -36,7 +36,8 @@
           :selected.sync="internalSelected"
         ></o-crud-table>
 
-        <div class="row justify-end q-mt-sm">
+        <div class="row justify-end q-gutter-xs q-mt-xs">
+          <q-btn label="Cancel" @click="onCancel" />
           <q-btn color="primary" label="Save" @click="onSave" />
         </div>
       </div>
@@ -148,9 +149,15 @@ export default defineComponent({
       isOpen.value = false
     }
 
+    const onCancel = () => {
+      internalSelected.value = selected.value
+      isOpen.value = false
+    }
+
     return {
       isOpen,
       onSave,
+      onCancel,
 
       items,
       pagination,
