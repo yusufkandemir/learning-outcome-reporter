@@ -13,7 +13,7 @@
 
         <q-toolbar-title>
           <q-avatar>
-            <img src="https://cdn.quasar.dev/logo/svg/quasar-logo.svg" />
+            <img src="~assets/logo.png" />
           </q-avatar>Outcome Reporter
         </q-toolbar-title>
       </q-toolbar>
