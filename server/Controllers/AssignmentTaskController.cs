@@ -5,14 +5,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNet.OData;
-using Microsoft.AspNet.OData.Routing;
 
 using server.Models;
 
 namespace server.Controllers
 {
-    [ODataRoutePrefix("Course/{courseId}/Assignments/{assignmentId}/AssignmentTasks")]
-    public class AssignmentTaskController : ODataController
+    [Route("api/Courses/{courseId}/Assignments/{assignmentId}/AssignmentTasks")]
+    [ApiController]
+    public class AssignmentTaskController : ControllerBase
     {
         private readonly OutcomeReportingContext _context;
 
@@ -21,17 +21,17 @@ namespace server.Controllers
             _context = context;
         }
 
-        // GET: api/Course/5/Assignments/10/AssignmentTasks
+        // GET: api/Courses/5/Assignments/10/AssignmentTasks
+        [HttpGet]
         [EnableQuery]
-        [ODataRoute("")]
-        public IQueryable<AssignmentTask> Get([FromODataUri] int assignmentId)
+        public IQueryable<AssignmentTask> GetAll([FromODataUri] int assignmentId)
         {
             return _context.AssignmentTasks.Where(x => x.AssignmentId == assignmentId);
         }
 
-        // GET: api/Course/5/Assignments/10/AssignmentTasks/15
+        // GET: api/Courses/5/Assignments/10/AssignmentTasks/15
+        [HttpGet("{id}")]
         [EnableQuery]
-        [ODataRoute("{id}")]
         public SingleResult<AssignmentTask> Get([FromODataUri] int id, [FromODataUri] int assignmentId)
         {
             IQueryable<AssignmentTask> assignmentTask = _context.AssignmentTasks.Where(x => x.Id == id && x.AssignmentId == assignmentId);
@@ -39,10 +39,10 @@ namespace server.Controllers
             return SingleResult.Create(assignmentTask);
         }
 
-        // PUT: api/Course/5/Assignments/10/AssignmentTasks/15
+        // PUT: api/Courses/5/Assignments/10/AssignmentTasks/15
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
-        [ODataRoute("{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromODataUri] int assignmentId, [FromODataUri] int id, [FromBody] AssignmentTask assignmentTask)
         {
             if (!ModelState.IsValid)
@@ -76,10 +76,10 @@ namespace server.Controllers
             return NoContent();
         }
 
-        // POST: api/Course/5/Assignments/10/AssignmentTasks/
+        // POST: api/Courses/5/Assignments/10/AssignmentTasks/
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
-        [ODataRoute("")]
+        [HttpPost]
         public async Task<ActionResult<AssignmentTask>> Post([FromODataUri] int courseId, [FromODataUri] int assignmentId, [FromBody] AssignmentTask assignmentTask)
         {
             if (!ModelState.IsValid)
@@ -91,11 +91,11 @@ namespace server.Controllers
             _context.AssignmentTasks.Add(assignmentTask);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("Get", new { odataPath = $"Course/{courseId}/Assignments/{assignmentId}/AssignmentTasks/{assignmentTask.Id}" }, assignmentTask);
+            return CreatedAtAction(nameof(Get), new { courseId = courseId, assignmentId = assignmentId, id = assignmentTask.Id }, assignmentTask);
         }
 
-        // DELETE: api/Course/5/Assignments/10/AssignmentTasks/15
-        [ODataRoute("{id}")]
+        // DELETE: api/Courses/5/Assignments/10/AssignmentTasks/15
+        [HttpDelete("{id}")]
         public async Task<ActionResult<AssignmentTask>> Delete([FromODataUri] int assignmentId, [FromODataUri] int id)
         {
             var assignmentTask = await _context.AssignmentTasks.FirstOrDefaultAsync(x => x.Id == id && x.AssignmentId == assignmentId);

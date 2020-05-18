@@ -47,7 +47,7 @@ export default defineComponent({
       rowsNumber: 0
     })
 
-    const departmentService = new ODataApiService('/api/Department')
+    const departmentService = new ODataApiService('/api/Departments')
 
     const entity = {
       key: 'Id',

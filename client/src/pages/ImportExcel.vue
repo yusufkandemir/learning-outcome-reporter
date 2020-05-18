@@ -216,7 +216,7 @@ export default defineComponent({
         worksheetOptions.value.push(worksheet.name)
       }
 
-      const assignmentService = new ODataApiService(`/api/Course/${form.courseId}/Assignments`)
+      const assignmentService = new ODataApiService(`/api/Courses/${form.courseId}/Assignments`)
       const { items } = await assignmentService.getAll({ parameters: { $expand: 'AssignmentTasks' } })
 
       assignments.value = items
@@ -415,7 +415,7 @@ function useCourseInfoSelector () {
     }
   ])
 
-  const courseInfoService = new ODataApiService('/api/CourseInfo/')
+  const courseInfoService = new ODataApiService('/api/CourseInfos')
 
   const entity = {
     key: 'Id',
@@ -478,7 +478,7 @@ function useCourseSelector (form) {
       return
     }
 
-    const courseService = new ODataApiService(`/api/CourseInfo/${form.courseInfoId}/Courses`)
+    const courseService = new ODataApiService(`/api/CourseInfos/${form.courseInfoId}/Courses`)
 
     entity.service = courseService
   })

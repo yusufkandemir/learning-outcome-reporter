@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNet.OData.Extensions;
 using Microsoft.OData.Edm;
 using Microsoft.AspNet.OData.Builder;
-using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using server.Models;
 
 namespace server
@@ -40,17 +39,20 @@ namespace server
         private static IEdmModel GetEdmModel()
         {
             var builder = new ODataConventionModelBuilder();
-            builder.EntitySet<Department>("Department");
-            builder.EntitySet<CourseInfo>("CourseInfo");
-            builder.EntitySet<Student>("Student");
-            builder.EntitySet<Course>("Course");
-            builder.EntitySet<Assignment>("Assignment");
-            builder.EntitySet<AssignmentTask>("AssignmentTask");
-            builder.EntitySet<Outcome>("Outcome");
-            builder.EntitySet<LearningOutcome>("LearningOutcome");
-            builder.EntitySet<ProgramOutcome>("ProgramOutcome");
+
+            builder.EntitySet<Department>("Departments");
+            builder.EntitySet<CourseInfo>("CourseInfos");
+            builder.EntitySet<Student>("Students");
+            builder.EntitySet<Course>("Courses");
+            builder.EntitySet<Assignment>("Assignments");
+            builder.EntitySet<AssignmentTask>("AssignmentTasks");
+            builder.EntitySet<Outcome>("Outcomes");
+            builder.EntitySet<LearningOutcome>("LearningOutcomes");
+            builder.EntitySet<ProgramOutcome>("ProgramOutcomes");
+
             return builder.GetEdmModel();
         }
+
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -69,6 +71,7 @@ namespace server
             {
                 endpoints.MapControllers();
                 endpoints.Expand().Select().OrderBy().Filter().MaxTop(null).Count();
+                endpoints.EnableDependencyInjection();
                 endpoints.MapODataRoute("odataroute", "api", GetEdmModel());
             });
         }

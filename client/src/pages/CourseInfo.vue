@@ -73,7 +73,7 @@ export default defineComponent({
       rowsNumber: 0
     })
 
-    const courseInfoService = new ODataApiService('/api/CourseInfo/')
+    const courseInfoService = new ODataApiService('/api/CourseInfos')
 
     const entity = {
       key: 'Id',
@@ -116,7 +116,7 @@ function useDepartmentSelector () {
     }
   ])
 
-  const departmentService = new ODataApiService('/api/Department')
+  const departmentService = new ODataApiService('/api/Departments')
 
   const entity = {
     key: 'Id',

@@ -6,11 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server.Models;
 using Microsoft.AspNet.OData;
-using Microsoft.AspNet.OData.Results;
 
 namespace server.Controllers
 {
-    public class DepartmentController : ODataController
+    [Route("api/Departments")]
+    [ApiController]
+    public class DepartmentController : ControllerBase
     {
         private readonly OutcomeReportingContext _context;
 
@@ -19,29 +20,31 @@ namespace server.Controllers
             _context = context;
         }
 
-        // GET: api/Department
+        // GET: api/Departments
+        [HttpGet]
         [EnableQuery]
-        public IQueryable<Department> Get()
+        public IQueryable<Department> GetAll()
         {
-            return  _context.Departments;
+            return _context.Departments;
         }
 
-        // GET: api/Department/5
+        // GET: api/Departments/5
+        [HttpGet("{id}")]
         [EnableQuery]
-        public SingleResult<Department> Get([FromODataUri] int key)
+        public SingleResult<Department> Get([FromODataUri] int id)
         {
-            IQueryable<Department> department =  _context.Departments.Where(x => x.Id == key);
+            IQueryable<Department> department = _context.Departments.Where(x => x.Id == id);
 
             return SingleResult.Create(department);
         }
 
-        // PUT: api/Department/5
+        // PUT: api/Departments/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put([FromODataUri] int key, [FromBody] Department department)
+        public async Task<IActionResult> Put([FromODataUri] int id, [FromBody] Department department)
         {
-            if (key != department.Id)
+            if (id != department.Id)
             {
                 return BadRequest();
             }
@@ -54,7 +57,7 @@ namespace server.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!DepartmentExists(key))
+                if (!DepartmentExists(id))
                 {
                     return NotFound();
                 }
@@ -67,23 +70,23 @@ namespace server.Controllers
             return NoContent();
         }
 
-        // POST: api/Department
+        // POST: api/Departments
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<CreatedODataResult<Department>> Post([FromBody] Department department)
+        public async Task<ActionResult<Department>> Post([FromBody] Department department)
         {
             _context.Departments.Add(department);
             await _context.SaveChangesAsync();
 
-            return Created(department);
+            return CreatedAtAction(nameof(Get), new { id = department.Id }, department);
         }
 
-        // DELETE: api/Department/5
+        // DELETE: api/Departments/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Department>> Delete(int key)
+        public async Task<ActionResult<Department>> Delete(int id)
         {
-            var department = await _context.Departments.FindAsync(key);
+            var department = await _context.Departments.FindAsync(id);
             if (department == null)
             {
                 return NotFound();

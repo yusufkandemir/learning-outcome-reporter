@@ -11,8 +11,9 @@ using server.Models;
 
 namespace server.Controllers
 {
-    [ODataRoutePrefix("CourseInfo/{courseInfoId}/Courses")]
-    public class CourseController : ODataController
+    [Route("api/CourseInfos/{courseInfoId}/Courses")]
+    [ApiController]
+    public class CourseController : ControllerBase
     {
         private readonly OutcomeReportingContext _context;
 
@@ -21,17 +22,17 @@ namespace server.Controllers
             _context = context;
         }
 
-        // GET: api/CourseInfo/5/Courses/
+        // GET: api/CourseInfos/5/Courses/
+        [HttpGet]
         [EnableQuery]
-        [ODataRoute("")]
-        public IQueryable<Course> Get([FromODataUri] int courseInfoId)
+        public IQueryable<Course> GetAll([FromODataUri] int courseInfoId)
         {
             return _context.Courses.Where(x => x.CourseInfoId == courseInfoId);
         }
 
-        // GET: api/CourseInfo/5/Courses/1
+        // GET: api/CourseInfos/5/Courses/1
+        [HttpGet("{id}")]
         [EnableQuery]
-        [ODataRoute("{id}")]
         public SingleResult<Course> Get([FromODataUri] int id, [FromODataUri] int courseInfoId)
         {
             IQueryable<Course> course = _context.Courses.Where(x => x.Id == id && x.CourseInfoId == courseInfoId);
@@ -39,10 +40,10 @@ namespace server.Controllers
             return SingleResult.Create(course);
         }
 
-        // PUT: api/CourseInfo/5/Courses/10
+        // PUT: api/CourseInfos/5/Courses/10
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
-        [ODataRoute("{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromODataUri] int courseInfoId, [FromODataUri] int id, [FromBody] Course course)
         {
             if (!ModelState.IsValid)
@@ -76,10 +77,10 @@ namespace server.Controllers
             return NoContent();
         }
 
-        // POST: api/CourseInfo/5/Courses
+        // POST: api/CourseInfos/5/Courses
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
-        [ODataRoute("")]
+        [HttpPost]
         public async Task<ActionResult<Course>> Post([FromODataUri] int courseInfoId, [FromBody] Course course)
         {
             if (!ModelState.IsValid)
@@ -91,11 +92,11 @@ namespace server.Controllers
             _context.Courses.Add(course);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("Get", new { odataPath = $"CourseInfo/{courseInfoId}/Courses/{course.Id}" }, course);
+            return CreatedAtAction(nameof(Get), new { courseInfoId = courseInfoId, id = course.Id }, course);
         }
 
-        // DELETE: api/CourseInfo/5/Courses/10
-        [ODataRoute("{id}")]
+        // DELETE: api/CourseInfos/5/Courses/10
+        [HttpDelete("{id}")]
         public async Task<ActionResult<Course>> DeleteCourse([FromODataUri] int courseInfoId, [FromODataUri] int id)
         {
             var course = await _context.Courses.FirstOrDefaultAsync(x => x.Id == id && x.CourseInfoId == courseInfoId);

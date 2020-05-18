@@ -91,7 +91,7 @@ function useUpdateForm (courseId, assignmentId) {
     Weight: 1
   })
 
-  const assignmentService = new ODataApiService(`/api/Course/${courseId}/Assignments`)
+  const assignmentService = new ODataApiService(`/api/Courses/${courseId}/Assignments`)
 
   onMounted(async () => {
     loading.value = true
@@ -173,7 +173,7 @@ function useAssignmentTaskTable (context) {
 
   const { assignmentId, courseInfoId, courseId } = context.root.$route.params
 
-  const assignmentTaskService = new ODataApiService(`/api/Course/${courseId}/Assignments/${assignmentId}/AssignmentTasks`)
+  const assignmentTaskService = new ODataApiService(`/api/Courses/${courseId}/Assignments/${assignmentId}/AssignmentTasks`)
 
   const entity = {
     key: 'Id',

@@ -175,7 +175,7 @@ function useDepartmentSelector () {
     }
   ])
 
-  const departmentService = new ODataApiService('/api/Department')
+  const departmentService = new ODataApiService('/api/Departments')
 
   const entity = {
     key: 'Id',
