@@ -6,11 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server.Models;
 using Microsoft.AspNet.OData;
-using Microsoft.AspNet.OData.Results;
 
 namespace server.Controllers
 {
-    public class StudentController : ODataController
+    [Route("api/Students")]
+    [ApiController]
+    public class StudentController : ControllerBase
     {
         private readonly OutcomeReportingContext _context;
 
@@ -19,29 +20,30 @@ namespace server.Controllers
             _context = context;
         }
 
-        // GET: api/Student
+        // GET: api/Students
         [EnableQuery]
-        public IQueryable<Student> Get()
+        public IQueryable<Student> GetAll()
         {
-            return  _context.Students;
+            return _context.Students;
         }
 
-        // GET: api/Student/5
+        // GET: api/Students/5
+        [HttpGet("{id}")]
         [EnableQuery]
-        public SingleResult<Student> Get([FromODataUri] string key)
+        public SingleResult<Student> Get([FromODataUri] string id)
         {
-            IQueryable<Student> student =  _context.Students.Where(x => x.Id == key);
+            IQueryable<Student> student = _context.Students.Where(x => x.Id == id);
 
             return SingleResult.Create(student);
         }
 
-        // PUT: api/Student/5
+        // PUT: api/Students/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put([FromODataUri] string key, [FromBody] Student student)
+        public async Task<IActionResult> Put([FromODataUri] string id, [FromBody] Student student)
         {
-            if (key != student.Id)
+            if (id != student.Id)
             {
                 return BadRequest();
             }
@@ -54,7 +56,7 @@ namespace server.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!StudentExists(key))
+                if (!StudentExists(id))
                 {
                     return NotFound();
                 }
@@ -67,24 +69,24 @@ namespace server.Controllers
             return NoContent();
         }
 
-        // POST: api/Student
+        // POST: api/Students
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<CreatedODataResult<Student>> Post([FromBody] Student student)
+        public async Task<ActionResult<Student>> Post([FromBody] Student student)
         {
             _context.Students.Add(student);
-            
+
             await _context.SaveChangesAsync();
 
-            return Created(student);
+            return CreatedAtAction(nameof(Get), new { id = student.Id }, student);
         }
 
-        // DELETE: api/Student/5
+        // DELETE: api/Students/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Student>> Delete(string key)
+        public async Task<ActionResult<Student>> Delete(string id)
         {
-            var student = await _context.Students.FindAsync(key);
+            var student = await _context.Students.FindAsync(id);
             if (student == null)
             {
                 return NotFound();

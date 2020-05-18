@@ -74,7 +74,7 @@ export default defineComponent({
 
     const departmentId = context.root.$route.params.id
 
-    const programOutcomeService = new ODataApiService(`/api/Department/${departmentId}/Outcomes`)
+    const programOutcomeService = new ODataApiService(`/api/Departments/${departmentId}/Outcomes`)
 
     const entity = {
       key: 'Id',
@@ -100,7 +100,7 @@ export default defineComponent({
       }
     }
 
-    const departmentService = new ODataApiService('/api/Department/')
+    const departmentService = new ODataApiService('/api/Departments')
 
     const { loading, onUpdate, department } = useUpdateForm(departmentService, departmentId)
 

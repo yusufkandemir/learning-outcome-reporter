@@ -115,7 +115,7 @@ function useDepartmentSelector () {
     }
   ])
 
-  const departmentService = new ODataApiService('/api/Department')
+  const departmentService = new ODataApiService('/api/Departments')
 
   const entity = {
     key: 'Id',
@@ -148,7 +148,7 @@ function useUpdateForm (courseInfoId) {
     DepartmentId: null
   })
 
-  const courseInfoService = new ODataApiService('/api/CourseInfo')
+  const courseInfoService = new ODataApiService('/api/CourseInfos')
 
   onMounted(async () => {
     loading.value = true
@@ -231,7 +231,7 @@ function useCourseTable (courseInfoId, context) {
     rowsNumber: 0
   })
 
-  const courseService = new ODataApiService(`/api/CourseInfo/${courseInfoId}/Courses`)
+  const courseService = new ODataApiService(`/api/CourseInfos/${courseInfoId}/Courses`)
 
   const entity = {
     key: 'Id',
@@ -293,7 +293,7 @@ function useLearningOutcomeTable (context) {
   })
   const courseInfoId = context.root.$route.params.id
 
-  const learningOutcomeService = new ODataApiService(`/api/CourseInfo/${courseInfoId}/Outcomes`)
+  const learningOutcomeService = new ODataApiService(`/api/CourseInfos/${courseInfoId}/Outcomes`)
 
   const entity = {
     key: 'Id',

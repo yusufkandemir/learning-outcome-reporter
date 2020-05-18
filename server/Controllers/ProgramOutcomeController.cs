@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNet.OData;
-using Microsoft.AspNet.OData.Routing;
 
 using server.Models;
 
 namespace server.Controllers
 {
-    [ODataRoutePrefix("Department/{departmentId}/Outcomes")]
+    [Route("api/Departments/{departmentId}/Outcomes")]
+    [ApiController]
     public class DepartmentOutcomeController : ODataController
     {
         private readonly OutcomeReportingContext _context;
@@ -21,17 +21,17 @@ namespace server.Controllers
             _context = context;
         }
 
-        // GET: api/Department/5/Outcomes/
+        // GET: api/Departments/5/Outcomes/
+        [HttpGet]
         [EnableQuery]
-        [ODataRoute("")]
-        public IQueryable<ProgramOutcome> Get([FromODataUri] int departmentId)
+        public IQueryable<ProgramOutcome> GetAll([FromODataUri] int departmentId)
         {
             return _context.Outcomes.OfType<ProgramOutcome>().Where(x => x.DepartmentId == departmentId);
         }
 
-        // GET: api/Department/5/Outcomes/1
+        // GET: api/Departments/5/Outcomes/1
+        [HttpGet("{id}")]
         [EnableQuery]
-        [ODataRoute("{id}")]
         public SingleResult<ProgramOutcome> Get([FromODataUri] int id, [FromODataUri] int departmentId)
         {
             IQueryable<ProgramOutcome> outcome = _context.Outcomes.OfType<ProgramOutcome>().Where(x => x.Id == id && x.DepartmentId == departmentId);
@@ -39,10 +39,10 @@ namespace server.Controllers
             return SingleResult.Create(outcome);
         }
 
-        // PUT: api/Department/5/Outcomes/10
+        // PUT: api/Departments/5/Outcomes/10
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
-        [ODataRoute("{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromODataUri] int departmentId, [FromODataUri] int id, [FromBody] ProgramOutcome outcome)
         {
             if (!ModelState.IsValid)
@@ -63,7 +63,7 @@ namespace server.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!AssignmentExists(id))
+                if (!ProgramOutcomeExists(id))
                 {
                     return NotFound();
                 }
@@ -76,10 +76,10 @@ namespace server.Controllers
             return NoContent();
         }
 
-        // POST: api/Department/5/Outcomes
+        // POST: api/Departments/5/Outcomes
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
-        [ODataRoute("")]
+        [HttpPost]
         public async Task<ActionResult<ProgramOutcome>> Post([FromODataUri] int departmentId, [FromBody] ProgramOutcome outcome)
         {
             if (!ModelState.IsValid)
@@ -91,11 +91,11 @@ namespace server.Controllers
             _context.Outcomes.Add(outcome);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("Get", new { odataPath = $"Department/{departmentId}/Outcomes/{outcome.Id}" }, outcome);
+            return CreatedAtAction(nameof(Get), new { departmentId = departmentId, id = outcome.Id }, outcome);
         }
 
-        // DELETE: api/Department/5/Outcomes/10
-        [ODataRoute("{id}")]
+        // DELETE: api/Departments/5/Outcomes/10
+        [HttpDelete("{id}")]
         public async Task<ActionResult<ProgramOutcome>> Delete([FromODataUri] int departmentId, [FromODataUri] int id)
         {
             var outcome = await _context.Outcomes.OfType<ProgramOutcome>().FirstOrDefaultAsync(x => x.Id == id && x.DepartmentId == departmentId);
@@ -110,7 +110,7 @@ namespace server.Controllers
             return outcome;
         }
 
-        private bool AssignmentExists(int id)
+        private bool ProgramOutcomeExists(int id)
         {
             return _context.Outcomes.OfType<ProgramOutcome>().Any(e => e.Id == id);
         }

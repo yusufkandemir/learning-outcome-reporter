@@ -6,11 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server.Models;
 using Microsoft.AspNet.OData;
-using Microsoft.AspNet.OData.Results;
 
 namespace server.Controllers
 {
-    public class CourseInfoController : ODataController
+    [Route("api/CourseInfos")]
+    [ApiController]
+    public class CourseInfoController : ControllerBase
     {
         private readonly OutcomeReportingContext _context;
 
@@ -19,29 +20,31 @@ namespace server.Controllers
             _context = context;
         }
 
-        // GET: api/CourseInfo
+        // GET: api/CourseInfos
+        [HttpGet]
         [EnableQuery]
-        public IQueryable<CourseInfo> Get()
+        public IQueryable<CourseInfo> GetAll()
         {
-            return  _context.CourseInfos;
+            return _context.CourseInfos;
         }
 
-        // GET: api/CourseInfo/5
+        // GET: api/CourseInfos/5
+        [HttpGet("{id}")]
         [EnableQuery]
-        public SingleResult<CourseInfo> Get([FromODataUri] int key)
+        public SingleResult<CourseInfo> Get([FromODataUri] int id)
         {
-            IQueryable<CourseInfo> courseInfo =  _context.CourseInfos.Where(x => x.Id == key);
+            IQueryable<CourseInfo> courseInfo = _context.CourseInfos.Where(x => x.Id == id);
 
             return SingleResult.Create(courseInfo);
         }
 
-        // PUT: api/CourseInfo/5
+        // PUT: api/CourseInfos/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put([FromODataUri] int key, [FromBody] CourseInfo courseInfo)
+        public async Task<IActionResult> Put([FromODataUri] int id, [FromBody] CourseInfo courseInfo)
         {
-            if (key != courseInfo.Id)
+            if (id != courseInfo.Id)
             {
                 return BadRequest();
             }
@@ -54,7 +57,7 @@ namespace server.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CourseInfoExists(key))
+                if (!CourseInfoExists(id))
                 {
                     return NotFound();
                 }
@@ -67,23 +70,23 @@ namespace server.Controllers
             return NoContent();
         }
 
-        // POST: api/CourseInfo
+        // POST: api/CourseInfos
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<CreatedODataResult<CourseInfo>> Post([FromBody] CourseInfo courseInfo)
+        public async Task<ActionResult<CourseInfo>> Post([FromBody] CourseInfo courseInfo)
         {
             _context.CourseInfos.Add(courseInfo);
             await _context.SaveChangesAsync();
 
-            return Created(courseInfo);
+            return CreatedAtAction(nameof(Get), new { id = courseInfo.Id }, courseInfo);
         }
 
-        // DELETE: api/CourseInfo/5
+        // DELETE: api/CourseInfos/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<CourseInfo>> Delete(int key)
+        public async Task<ActionResult<CourseInfo>> Delete(int id)
         {
-            var courseInfo = await _context.CourseInfos.FindAsync(key);
+            var courseInfo = await _context.CourseInfos.FindAsync(id);
             if (courseInfo == null)
             {
                 return NotFound();
