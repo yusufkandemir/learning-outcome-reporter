@@ -91,7 +91,7 @@ namespace server.Controllers
             _context.Outcomes.Add(outcome);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("Get", new { odataPath = $"Department/{departmentId}/Outcomes/{outcome.Id}" }, outcome);
+            return CreatedAtAction(nameof(Get), new { departmentId = departmentId, id = outcome.Id }, outcome);
         }
 
         // DELETE: api/Departments/5/Outcomes/10
