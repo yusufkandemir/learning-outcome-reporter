@@ -32,7 +32,7 @@ namespace server
         {
             services.AddOData();
 
-            services.AddMvc(option => option.EnableEndpointRouting = false).AddNewtonsoftJson();
+            services.AddControllers().AddNewtonsoftJson();
 
             services.AddDbContext<OutcomeReportingContext>(options => options.UseSqlServer("Name=OutcomeReportingContext"));
         }
@@ -59,24 +59,18 @@ namespace server
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseMvc(routeBuilder =>
-            {
-                routeBuilder.EnableDependencyInjection();
-
-                routeBuilder.Expand().Select().OrderBy().Filter().MaxTop(null).Count();
-
-                routeBuilder.MapODataServiceRoute("odataroute", "api", GetEdmModel());
-
-                routeBuilder.MapRoute("ImportExcel", "api/ImportExcel");
-
-                routeBuilder.MapRoute("Report", "api/Reports");
-            });
-
             app.UseHttpsRedirection();
 
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.Expand().Select().OrderBy().Filter().MaxTop(null).Count();
+                endpoints.MapODataRoute("odataroute", "api", GetEdmModel());
+            });
         }
     }
 }
