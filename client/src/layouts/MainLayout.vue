@@ -77,7 +77,7 @@
 
     <q-footer elevated class="bg-black text-center q-py-xs">
       <div>IKU Department of Computer Engineering &copy; 2020</div>
-      <div>Made with 💖 by YODA</div>
+      <div>Made with 💖 by 3K</div>
     </q-footer>
   </q-layout>
 </template>
