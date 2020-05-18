@@ -64,7 +64,7 @@ namespace server.Models
                 entity.Property(e => e.OutcomeId).HasColumnName("outcome_id");
 
                 entity.HasOne(d => d.AssignmentTask)
-                    .WithMany(p => p.AssignmentTaskOutcomes)
+                    .WithMany(p => p.Outcomes)
                     .HasForeignKey(d => d.AssignmentTaskId)
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_assignment_task_outcome_assignment_task_id");
@@ -97,7 +97,7 @@ namespace server.Models
                     .HasConstraintName("FK_assignment_task_results_assignment_result_id");
 
                 entity.HasOne(d => d.AssignmentTask)
-                    .WithMany(p => p.AssignmentTaskResults)
+                    .WithMany(p => p.Results)
                     .HasForeignKey(d => d.AssignmentTaskId)
                     .OnDelete(DeleteBehavior.ClientCascade)
                     .HasConstraintName("FK_assignment_task_results_assignment_task_id");

@@ -7,8 +7,8 @@ namespace server.Models
     {
         public AssignmentTask()
         {
-            AssignmentTaskOutcomes = new HashSet<AssignmentTaskOutcome>();
-            AssignmentTaskResults = new HashSet<AssignmentTaskResult>();
+            Outcomes = new HashSet<AssignmentTaskOutcome>();
+            Results = new HashSet<AssignmentTaskResult>();
         }
 
         public int Id { get; set; }
@@ -17,7 +17,7 @@ namespace server.Models
 
         public int AssignmentId { get; set; }
         public virtual Assignment Assignment { get; set; }
-        public virtual ICollection<AssignmentTaskOutcome> AssignmentTaskOutcomes { get; set; }
-        public virtual ICollection<AssignmentTaskResult> AssignmentTaskResults { get; set; }
+        public virtual ICollection<AssignmentTaskOutcome> Outcomes { get; set; }
+        public virtual ICollection<AssignmentTaskResult> Results { get; set; }
     }
 }

@@ -40,7 +40,7 @@ namespace server.Controllers
                 .Include(x => x.AssignmentResults)
                     .ThenInclude(x => x.AssignmentTaskResults)
                     .ThenInclude(x => x.AssignmentTask)
-                    .ThenInclude(x => x.AssignmentTaskOutcomes)
+                    .ThenInclude(x => x.Outcomes)
                     .ThenInclude(x => x.Outcome)
                 .Where(x => courseIds.Contains(x.CourseId))
                 .ToListAsync();
@@ -61,7 +61,7 @@ namespace server.Controllers
                         decimal assignmentTaskWeight = assignmentTaskResult.AssignmentTask.Weight;
                         decimal poGrade = assignmentTaskResult.Grade * assignmentTaskWeight * assignmentWeight * courseCredit;
 
-                        foreach (var assignmentTaskOutcome in assignmentTaskResult.AssignmentTask.AssignmentTaskOutcomes)
+                        foreach (var assignmentTaskOutcome in assignmentTaskResult.AssignmentTask.Outcomes)
                         {
                             byte poCode = assignmentTaskOutcome.Outcome.Code;
 
