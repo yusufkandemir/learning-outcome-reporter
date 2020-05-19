@@ -12,7 +12,8 @@ const routes = [
       { path: '/course_info/:courseInfoId/courses/:courseId', component: () => import('pages/EditCourse.vue') },
       { path: '/course_info/:courseInfoId/courses/:courseId/assignments/:assignmentId', component: () => import('pages/EditAssignment.vue') },
       { path: '/import_excel', component: () => import('pages/ImportExcel.vue') },
-      { path: '/reports', component: () => import('pages/Reports.vue') }
+      { path: '/reports', component: () => import('pages/Reports.vue') },
+      { path: '/course_info/:courseInfoId/courses/:courseId/assignments/:assignmentId/tasks/:taskId', component: () => import('pages/EditAssignmentTask.vue') }
     ]
   }
 ]
