@@ -46,6 +46,7 @@ namespace server
             builder.EntitySet<Course>("Courses");
             builder.EntitySet<Assignment>("Assignments");
             builder.EntitySet<AssignmentTask>("AssignmentTasks");
+            builder.EntitySet<AssignmentTaskOutcome>("AssignmentTaskOutcomes").EntityType.HasKey(x => new { x.AssignmentTaskId, x.OutcomeId });
             builder.EntitySet<Outcome>("Outcomes");
             builder.EntitySet<LearningOutcome>("LearningOutcomes");
             builder.EntitySet<ProgramOutcome>("ProgramOutcomes");
