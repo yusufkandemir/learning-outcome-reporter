@@ -110,6 +110,44 @@ namespace server.Controllers
             return assignmentTask;
         }
 
+        // PUT: api/Courses/5/Assignments/10/AssignmentTasks/15/Outcomes/20
+        [HttpPut("{taskId}/Outcomes/{outcomeId}")]
+        public async Task<ActionResult> AttachOutcome([FromRoute] int taskId, [FromRoute] int outcomeId)
+        {
+            var assignmentTask = await _context.AssignmentTasks.FindAsync(taskId);
+            if (assignmentTask == null)
+                return NotFound();
+
+            var outcome = await _context.Outcomes.FindAsync(outcomeId);
+            if (outcome == null)
+                return NotFound();
+
+            var assignmentTaskOutcome = new AssignmentTaskOutcome
+            {
+                AssignmentTaskId = taskId,
+                OutcomeId = outcomeId
+            };
+
+            _context.AssignmentTaskOutcome.Add(assignmentTaskOutcome);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        // DELETE: api/Courses/5/Assignments/10/AssignmentTasks/15/Outcomes/20
+        [HttpDelete("{taskId}/Outcomes/{outcomeId}")]
+        public async Task<ActionResult<AssignmentTaskOutcome>> DetachOutcome([FromRoute] int taskId, [FromRoute] int outcomeId)
+        {
+            var assignmentTaskOutcome = await _context.AssignmentTaskOutcome.FirstOrDefaultAsync(x => x.AssignmentTaskId == taskId && x.OutcomeId == outcomeId);
+            if (assignmentTaskOutcome == null)
+                return NotFound();
+
+            _context.AssignmentTaskOutcome.Remove(assignmentTaskOutcome);
+            await _context.SaveChangesAsync();
+
+            return assignmentTaskOutcome;
+        }
+
         private bool AssignmentTaskExists(int id)
         {
             return _context.AssignmentTasks.Any(e => e.Id == id);

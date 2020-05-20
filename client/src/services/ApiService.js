@@ -49,8 +49,12 @@ export class ODataApiService {
     }
   }
 
-  async get (key) {
-    const response = await this.client.get(`/${key}`)
+  async get (key, parameters = {}) {
+    const params = new URLSearchParams({
+      ...parameters
+    })
+
+    const response = await this.client.get(`/${key}?${params.toString()}`)
 
     return response.data
   }

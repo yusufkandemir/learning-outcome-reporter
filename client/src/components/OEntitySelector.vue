@@ -24,7 +24,7 @@
       </template>
     </q-select>
 
-    <q-dialog v-model="isOpen" persistent @hide="isOpen = false">
+    <q-dialog v-model="isOpen" :persistent="liveEdit !== true" @hide="isOpen = false">
       <div style="width: 700px; max-width: 80vw;">
         <o-crud-table
           :entity="entity"
@@ -34,9 +34,10 @@
           :actions="actionConfig"
           :selection="multiple ? 'multiple' : 'single'"
           :selected.sync="internalSelected"
+          @selection="onSelection"
         ></o-crud-table>
 
-        <div class="row justify-end q-gutter-xs q-mt-xs">
+        <div v-if="liveEdit !== true" class="row justify-end q-gutter-xs q-mt-xs">
           <q-btn label="Cancel" @click="onCancel" />
           <q-btn color="primary" label="Save" @click="onSave" />
         </div>
@@ -78,6 +79,7 @@ export default defineComponent({
       }
     },
     emitKey: Boolean,
+    liveEdit: Boolean,
     sortBy: {
       type: Object,
       default () {
@@ -116,8 +118,19 @@ export default defineComponent({
       }
     }
 
+    // TODO: Simplify the internal logic
     const selected = ref([])
     const internalSelected = ref([])
+
+    watch(selected, value => {
+      internalSelected.value = value
+    })
+
+    watch(internalSelected, value => {
+      if (props.liveEdit === true) {
+        selected.value = value
+      }
+    })
 
     const model = computed(() => {
       let values = selected.value
@@ -134,14 +147,23 @@ export default defineComponent({
     })
 
     watch(() => props.value, async (value, oldValue) => {
-      const isModifiedOutside = value !== model.value
+      const isModifiedOutside = props.multiple !== true ? value !== model.value : (isArraysEqual(value, model.value) !== true)
 
-      // TODO: Add support for multiple items
-      if (props.emitKey === true && props.multiple !== true && isModifiedOutside && value !== undefined && value !== null) {
-        const item = await props.entity.service.get(value)
+      if (props.emitKey === true && isModifiedOutside === true && value !== undefined && value !== null) {
+        if (props.multiple !== true) {
+          const item = await props.entity.service.get(value)
 
-        selected.value = [item]
+          selected.value = [item]
+        } else {
+          if (value.length <= 0) return
+
+          const { items } = await props.entity.service.getAll({ parameters: { $filter: `${props.entity.key} in (${value.join()})` } })
+
+          selected.value = items
+        }
       }
+
+      // TODO: Add support for updating the internal model with the outside value, for emitKey === false
     })
 
     const onSave = () => {
@@ -154,6 +176,17 @@ export default defineComponent({
       isOpen.value = false
     }
 
+    const onSelection = details => {
+      const currentKeys = selected.value.map(item => item[props.entity.key])
+      // Eliminate the unchanged keys, because 'details.keys' can contain extra keys when 'toggle all' checkbox in QTable is used
+      const changedKeys = details.keys.filter(key => details.added ^ currentKeys.includes(key))
+
+      context.emit('selection', {
+        isAdded: details.added,
+        keys: changedKeys
+      })
+    }
+
     return {
       isOpen,
       onSave,
@@ -164,8 +197,14 @@ export default defineComponent({
       actionConfig,
 
       selected,
-      internalSelected
+      internalSelected,
+      onSelection
     }
   }
 })
+
+const isArraysEqual = (first, second) => (first.length === second.length) && first.every((element, index) => element === second[index])
 </script>
+
+<style lang="sass">
+</style>

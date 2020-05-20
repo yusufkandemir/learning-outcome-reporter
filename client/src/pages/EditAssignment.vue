@@ -179,7 +179,7 @@ function useAssignmentTaskTable (context) {
     key: 'Id',
     name: 'AssignmentTask',
     displayName: (plural = false) => `Assignment Task${plural ? 's' : ''}`,
-    route: (key = '') => `/course_info/${courseInfoId}/courses/${courseId}/assignments/${assignmentId}/assignment_task/${key}`,
+    route: (key = '') => `/course_info/${courseInfoId}/courses/${courseId}/assignments/${assignmentId}/tasks/${key}`,
     service: assignmentTaskService,
     defaultValue () {
       return {
@@ -193,9 +193,6 @@ function useAssignmentTaskTable (context) {
   const actions = {
     create: {
       icon: 'mdi-plus'
-    },
-    edit: {
-      enabled: false
     },
     search: {
       enabled: false
