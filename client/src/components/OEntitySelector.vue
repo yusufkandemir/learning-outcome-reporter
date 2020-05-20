@@ -177,9 +177,13 @@ export default defineComponent({
     }
 
     const onSelection = details => {
+      const currentKeys = selected.value.map(item => item[props.entity.key])
+      // Eliminate the unchanged keys, because 'details.keys' can contain extra keys when 'toggle all' checkbox in QTable is used
+      const changedKeys = details.keys.filter(key => details.added ^ currentKeys.includes(key))
+
       context.emit('selection', {
         isAdded: details.added,
-        keys: details.keys
+        keys: changedKeys
       })
     }
 
@@ -203,8 +207,4 @@ const isArraysEqual = (first, second) => (first.length === second.length) && fir
 </script>
 
 <style lang="sass">
-// TODO: Investigate why interacting with the top checkbox makes `selection` event emit the whole list of `details.keys` instead of just changed ones
-// Temp workaround to disable top checkbox
-.q-table thead .q-checkbox
-  display: none
 </style>
