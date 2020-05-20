@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, reactive, onMounted } from '@vue/composition-api'
+import { defineComponent, ref, reactive, onMounted, watch } from '@vue/composition-api'
 import { Notify } from 'quasar'
 import axios from 'axios'
 
@@ -80,6 +80,14 @@ export default defineComponent({
 
     const learningOutcomes = useLearningOutcomeSelector({ courseInfoId, courseId, assignmentId, taskId })
     const programOutcomes = useProgramOutcomeSelector({ courseInfoId, courseId, assignmentId, taskId })
+
+    // Update outcomes list with current ones
+    watch(() => assignmentTask.Outcomes, (assignmentTaskOutcomes, oldValue) => {
+      const outcomeIds = [...assignmentTaskOutcomes.map(({ Outcome: outcome }) => outcome.Id)]
+
+      learningOutcomes.items = outcomeIds
+      programOutcomes.items = outcomeIds
+    })
 
     return {
       loading,
@@ -131,7 +139,7 @@ function useProgramOutcomeSelector ({ courseInfoId, courseId, assignmentId, task
   onMounted(async () => {
     const courseInfoService = new ODataApiService('/api/CourseInfos')
 
-    const { DepartmentId: departmentId } = await courseInfoService.get(courseInfoId)
+    const { DepartmentId: departmentId } = await courseInfoService.get(courseInfoId, { $select: 'DepartmentId' })
 
     const programOutcomeService = new ODataApiService(`/api/Departments/${departmentId}/Outcomes`)
 
@@ -224,7 +232,7 @@ function useUpdateForm (courseId, assignmentId, taskId) {
   onMounted(async () => {
     loading.value = true
     try {
-      const data = await service.get(taskId)
+      const data = await service.get(taskId, { $expand: 'Outcomes($expand=Outcome)' })
       Object.assign(assignmentTask, data)
     } catch (error) {
       Notify.create({
