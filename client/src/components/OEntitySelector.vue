@@ -134,14 +134,23 @@ export default defineComponent({
     })
 
     watch(() => props.value, async (value, oldValue) => {
-      const isModifiedOutside = value !== model.value
+      const isModifiedOutside = props.multiple !== true ? value !== model.value : (isArraysEqual(value, model.value) !== true)
 
-      // TODO: Add support for multiple items
-      if (props.emitKey === true && props.multiple !== true && isModifiedOutside && value !== undefined && value !== null) {
+      if (props.emitKey === true && isModifiedOutside === true && value !== undefined && value !== null) {
+        if (props.multiple !== true) {
         const item = await props.entity.service.get(value)
 
         selected.value = [item]
+        } else {
+          if (value.length <= 0) return
+
+          const { items } = await props.entity.service.getAll({ parameters: { $filter: `${props.entity.key} in (${value.join()})` } })
+
+          selected.value = items
+        }
       }
+
+      // TODO: Add support for updating the internal model with the outside value, for emitKey === false
     })
 
     const onSave = () => {
@@ -168,4 +177,6 @@ export default defineComponent({
     }
   }
 })
+
+const isArraysEqual = (first, second) => (first.length === second.length) && first.every((element, index) => element === second[index])
 </script>
