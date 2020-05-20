@@ -24,7 +24,7 @@
       </template>
     </q-select>
 
-    <q-dialog v-model="isOpen" persistent @hide="isOpen = false">
+    <q-dialog v-model="isOpen" :persistent="liveEdit !== true" @hide="isOpen = false">
       <div style="width: 700px; max-width: 80vw;">
         <o-crud-table
           :entity="entity"
@@ -34,9 +34,10 @@
           :actions="actionConfig"
           :selection="multiple ? 'multiple' : 'single'"
           :selected.sync="internalSelected"
+          @selection="onSelection"
         ></o-crud-table>
 
-        <div class="row justify-end q-gutter-xs q-mt-xs">
+        <div v-if="liveEdit !== true" class="row justify-end q-gutter-xs q-mt-xs">
           <q-btn label="Cancel" @click="onCancel" />
           <q-btn color="primary" label="Save" @click="onSave" />
         </div>
@@ -78,6 +79,7 @@ export default defineComponent({
       }
     },
     emitKey: Boolean,
+    liveEdit: Boolean,
     sortBy: {
       type: Object,
       default () {
@@ -116,8 +118,19 @@ export default defineComponent({
       }
     }
 
+    // TODO: Simplify the internal logic
     const selected = ref([])
     const internalSelected = ref([])
+
+    watch(selected, value => {
+      internalSelected.value = value
+    })
+
+    watch(internalSelected, value => {
+      if (props.liveEdit === true) {
+        selected.value = value
+      }
+    })
 
     const model = computed(() => {
       let values = selected.value
@@ -138,9 +151,9 @@ export default defineComponent({
 
       if (props.emitKey === true && isModifiedOutside === true && value !== undefined && value !== null) {
         if (props.multiple !== true) {
-        const item = await props.entity.service.get(value)
+          const item = await props.entity.service.get(value)
 
-        selected.value = [item]
+          selected.value = [item]
         } else {
           if (value.length <= 0) return
 
@@ -163,6 +176,13 @@ export default defineComponent({
       isOpen.value = false
     }
 
+    const onSelection = details => {
+      context.emit('selection', {
+        isAdded: details.added,
+        keys: details.keys
+      })
+    }
+
     return {
       isOpen,
       onSave,
@@ -173,10 +193,18 @@ export default defineComponent({
       actionConfig,
 
       selected,
-      internalSelected
+      internalSelected,
+      onSelection
     }
   }
 })
 
 const isArraysEqual = (first, second) => (first.length === second.length) && first.every((element, index) => element === second[index])
 </script>
+
+<style lang="sass">
+// TODO: Investigate why interacting with the top checkbox makes `selection` event emit the whole list of `details.keys` instead of just changed ones
+// Temp workaround to disable top checkbox
+.q-table thead .q-checkbox
+  display: none
+</style>
