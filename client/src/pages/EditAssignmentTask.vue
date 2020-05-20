@@ -83,10 +83,19 @@ export default defineComponent({
 
     // Update outcomes list with current ones
     watch(() => assignmentTask.Outcomes, (assignmentTaskOutcomes, oldValue) => {
-      const outcomeIds = [...assignmentTaskOutcomes.map(({ Outcome: outcome }) => outcome.Id)]
+      // TODO: Don't use `emitKey`, then use the whole outcome objects instead of just keys to avoid double fetching.
+      // (Will be possible when model updating support when not using `emitKey` prop is added to OEntitySelector)
+      const outcomeIds = {
+        learning: [],
+        program: []
+      }
 
-      learningOutcomes.items = outcomeIds
-      programOutcomes.items = outcomeIds
+      for (const { Outcome } of assignmentTaskOutcomes) {
+        outcomeIds[Outcome.Type].push(Outcome.Id)
+      }
+
+      learningOutcomes.items = outcomeIds.learning
+      programOutcomes.items = outcomeIds.program
     })
 
     return {
