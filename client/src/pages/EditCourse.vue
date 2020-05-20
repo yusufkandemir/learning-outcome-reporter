@@ -95,7 +95,6 @@ function useUpdateForm (courseInfoId, courseId) {
 
     try {
       const data = await courseService.get(courseId)
-      console.log(data, courseId)
       Object.assign(course, data)
     } catch (error) {
       Notify.create({
