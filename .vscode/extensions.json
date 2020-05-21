@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "ms-azuretools.vscode-docker",
+        "octref.vetur",
+        "dbaeumer.vscode-eslint",
+        "ms-dotnettools.csharp",
+        "wayou.vscode-todo-highlight",
+        "coenraads.bracket-pair-colorizer"
+    ]
+}
