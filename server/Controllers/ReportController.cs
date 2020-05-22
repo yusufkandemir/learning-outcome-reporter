@@ -11,6 +11,8 @@ using server.DTOs;
 
 namespace server.Controllers
 {
+    using TaskGradeList = List<(decimal grade, decimal taskWeight, decimal assignmentWeight, decimal courseCredit)>;
+
     [Route("api/Reports")]
     [ApiController]
     public class ReportController : ControllerBase
@@ -44,7 +46,7 @@ namespace server.Controllers
                 .Where(x => courseIds.Contains(x.CourseId))
                 .ToListAsync();
 
-            var grades = new Dictionary<byte, Dictionary<string, List<(decimal taskWeight, decimal assignmentWeight, decimal courseCredit, decimal grade)>>>();
+            var grades = new Dictionary<byte, Dictionary<string, TaskGradeList>>();
             var credits = new Dictionary<byte, Dictionary<int, int>>();
 
             foreach (var courseResult in courseResults)
@@ -68,15 +70,15 @@ namespace server.Controllers
 
                             if (!grades.ContainsKey(poCode))
                             {
-                                grades[poCode] = new Dictionary<string, List<(decimal taskWeight, decimal assignmentWeight, decimal courseCredit, decimal grade)>>();
+                                grades[poCode] = new Dictionary<string, TaskGradeList>();
                             }
 
                             if (!grades[poCode].ContainsKey(studentId))
                             {
-                                grades[poCode][studentId] = new List<(decimal taskWeight, decimal assignmentWeight, decimal courseCredit, decimal grade)>();
+                                grades[poCode][studentId] = new TaskGradeList();
                             }
 
-                            grades[poCode][studentId].Add((assignmentTaskWeight, assignmentWeight, courseCredit, poGrade));
+                            grades[poCode][studentId].Add((poGrade, assignmentTaskWeight, assignmentWeight, courseCredit));
 
                             if (!credits.ContainsKey(poCode))
                             {
