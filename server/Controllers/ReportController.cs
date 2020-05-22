@@ -29,7 +29,6 @@ namespace server.Controllers
         {
             var courses = await _context.Courses
                 .Include(x => x.CourseInfo)
-                .Include(x => x.CourseResults)
                 .Where(x => x.Semester == input.Semester && x.Year == input.Year && x.CourseInfo.DepartmentId == input.DepartmentId)
                 .ToListAsync();
 
