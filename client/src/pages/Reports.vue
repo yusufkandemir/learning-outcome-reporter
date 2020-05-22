@@ -95,7 +95,8 @@ export default defineComponent({
       yaxis: {
         title: {
           text: 'Avg. Performance (%)'
-        }
+        },
+        max: 100
       },
       title: {
         text: 'Department of Computer Engineering',
