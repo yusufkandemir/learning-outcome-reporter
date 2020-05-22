@@ -11,6 +11,8 @@ using server.DTOs;
 
 namespace server.Controllers
 {
+    using TaskGradeList = List<(decimal grade, decimal taskWeight, decimal assignmentWeight, decimal courseCredit)>;
+
     [Route("api/Reports")]
     [ApiController]
     public class ReportController : ControllerBase
@@ -29,7 +31,6 @@ namespace server.Controllers
         {
             var courses = await _context.Courses
                 .Include(x => x.CourseInfo)
-                .Include(x => x.CourseResults)
                 .Where(x => x.Semester == input.Semester && x.Year == input.Year && x.CourseInfo.DepartmentId == input.DepartmentId)
                 .ToListAsync();
 
@@ -45,21 +46,23 @@ namespace server.Controllers
                 .Where(x => courseIds.Contains(x.CourseId))
                 .ToListAsync();
 
-            var grades = new Dictionary<byte, decimal>();
+            var grades = new Dictionary<byte, Dictionary<string, TaskGradeList>>();
             var credits = new Dictionary<byte, Dictionary<int, int>>();
 
             foreach (var courseResult in courseResults)
             {
                 int courseId = courseResult.Course.CourseInfo.Id;
                 int courseCredit = courseResult.Course.CourseInfo.Credit;
+                string studentId = courseResult.StudentId;
 
                 foreach (var assignmentResult in courseResult.AssignmentResults)
                 {
                     decimal assignmentWeight = assignmentResult.Assignment.Weight;
+
                     foreach (var assignmentTaskResult in assignmentResult.AssignmentTaskResults)
                     {
                         decimal assignmentTaskWeight = assignmentTaskResult.AssignmentTask.Weight;
-                        decimal poGrade = assignmentTaskResult.Grade * assignmentTaskWeight * assignmentWeight * courseCredit;
+                        decimal poGrade = assignmentTaskResult.Grade * courseCredit;
 
                         foreach (var assignmentTaskOutcome in assignmentTaskResult.AssignmentTask.Outcomes)
                         {
@@ -67,15 +70,21 @@ namespace server.Controllers
 
                             if (!grades.ContainsKey(poCode))
                             {
-                                grades[poCode] = 0;
+                                grades[poCode] = new Dictionary<string, TaskGradeList>();
                             }
-                            grades[poCode] += poGrade;
 
+                            if (!grades[poCode].ContainsKey(studentId))
+                            {
+                                grades[poCode][studentId] = new TaskGradeList();
+                            }
+
+                            grades[poCode][studentId].Add((poGrade, assignmentTaskWeight, assignmentWeight, courseCredit));
 
                             if (!credits.ContainsKey(poCode))
                             {
                                 credits[poCode] = new Dictionary<int, int>();
                             }
+
                             credits[poCode][courseId] = courseCredit;
                         }
                     }
@@ -84,13 +93,18 @@ namespace server.Controllers
 
             var results = new List<ResultPair>();
 
-            foreach (var result in grades.OrderBy(x => x.Key))
+            foreach (var (poCode, studentGrades) in grades.OrderBy(x => x.Key))
             {
-                var totalCredits = credits[result.Key].Sum(x => x.Value);
+                var totalCredits = credits[poCode].Sum(x => x.Value);
 
-                decimal value = result.Value / totalCredits;
+                decimal value = studentGrades.Average(studentGrade =>
+                {
+                    var totalWeight = studentGrade.Value.Sum(x => x.assignmentWeight * x.taskWeight * x.courseCredit);
 
-                results.Add(new ResultPair { x = result.Key.ToString(), y = value });
+                    return studentGrade.Value.Sum(x => x.grade * x.taskWeight * x.assignmentWeight * (x.courseCredit / totalCredits) / totalWeight);
+                });
+
+                results.Add(new ResultPair { x = poCode.ToString(), y = Math.Round(value, 2) });
             }
 
             var output = new DepartmentReportOutputDTO
